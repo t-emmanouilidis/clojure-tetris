@@ -1,31 +1,21 @@
 (ns clj-tetris.swing
   (:gen-class)
   (:import [javax.swing AbstractAction KeyStroke JPanel JFrame])
-  (:import [java.awt Dimension Color Graphics2D])
-  (:import [java.awt.event KeyEvent]))
+  (:import [java.awt Color])
+  (:import [java.util Stack]))
 
 (def bluishGray (Color. 48 99 99))
 (def bluishSilver (Color. 210 255 255))
 
-(def space-key (KeyStroke/getKeyStroke "SPACE"))
-(def down-key (KeyStroke/getKeyStroke "DOWN"))
-(def up-key (KeyStroke/getKeyStroke "UP"))
-(def left-key (KeyStroke/getKeyStroke "LEFT"))
-(def right-key (KeyStroke/getKeyStroke "RIGHT"))
-
 (def main-frame (JFrame. "Tetris"))
 
-(defn onKeyPress [key]
-  (case key
-    space-key "SPACE"
-    down-key "DOWN"
-    up-key "UP"
-    left-key "LEFT"
-    right-key "RIGHT"
-    "default" nil))
+(def lastKeyStack (Stack.))
 
-(defn onPaint [graphics])
+(defn onKeyPress [key] (.push lastKeyStack key))
 
+(defn onPaint [graphics]
+  (.setColor graphics bluishSilver)
+  (if (not (.isEmpty lastKeyStack)) (.drawString graphics (.pop lastKeyStack) 20 20)))
 
 (def main-panel
   (proxy [JPanel] []
@@ -36,23 +26,36 @@
           (.fillRect graphics 0 0 panel-width panel-height)
           (onPaint graphics))))))
 
-(def key-action (proxy [AbstractAction] [] (actionPerformed [event] (.repaint main-panel))))
+(def tetris-space-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "SPACE") (.repaint main-panel))))
+(def tetris-down-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "DOWN") (.repaint main-panel))))
+(def tetris-up-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "UP") (.repaint main-panel))))
+(def tetris-left-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "LEFT") (.repaint main-panel))))
+(def tetris-right-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "RIGHT") (.repaint main-panel))))
 
 (defn -main
   [& args]
 
-  (.add main-frame main-panel)
-
   ;Example key binding
-  (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "F2") "customAction")
-  (.put (.getActionMap main-panel) "customAction" key-action)
+  (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "SPACE") "tetrisSpaceAction")
+  (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "DOWN") "tetrisDownAction")
+  (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "UP") "tetrisUpAction")
+  (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "LEFT") "tetrisLeftAction")
+  (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "RIGHT") "tetrisRightAction")
+
+  (.put (.getActionMap main-panel) "tetrisSpaceAction" tetris-space-action)
+  (.put (.getActionMap main-panel) "tetrisDownAction" tetris-down-action)
+  (.put (.getActionMap main-panel) "tetrisUpAction" tetris-up-action)
+  (.put (.getActionMap main-panel) "tetrisLeftAction" tetris-left-action)
+  (.put (.getActionMap main-panel) "tetrisRightAction" tetris-right-action)
 
   ;Setup panel properties
-  (.setPreferredSize main-panel (Dimension. 700 400))
+  (.setContentPane main-frame main-panel)
+
+  (.setSize main-panel 200 200)
   (.setFocusable main-panel true)
 
-  (.setVisible main-frame true)
-  )
+  (.setSize main-frame 200 200)
+  (.setVisible main-frame true))
 
 
 
