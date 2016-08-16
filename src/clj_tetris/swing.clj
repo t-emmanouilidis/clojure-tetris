@@ -1,11 +1,14 @@
 (ns clj-tetris.swing
   (:gen-class)
   (:import [javax.swing AbstractAction KeyStroke JPanel JFrame])
-  (:import [java.awt Color])
-  (:import [java.util Stack]))
+  (:import [java.awt Color Rectangle])
+  (:import [java.util Stack])
+  (:require [clj-tetris.core :as tcore :refer :all]))
 
-(def bluishGray (Color. 48 99 99))
-(def bluishSilver (Color. 210 255 255))
+(def gray (Color. 48 99 99))
+(def silver (Color. 210 255 255))
+(def lighter-gray (Color. 165 185 185))
+(def bright-gray (Color. 228 242 242))
 
 (def main-frame (JFrame. "Tetris"))
 
@@ -13,16 +16,52 @@
 
 (defn onKeyPress [key] (.push lastKeyStack key))
 
+(def block-size 5)
+(def block-margin 5)
+(def block-size-plus-margin (+ block-size block-margin))
+
+(defn create-rect
+  [view [pos-x, pos-y]]
+  (Rectangle. (* pos-x block-size-plus-margin)
+              (* (- (last (:grid-size view)) pos-y) block-size-plus-margin)
+              block-size
+              block-size))
+
+(defn draw-empty-grid
+  [graphics view]
+  (.setColor graphics lighter-gray)
+  (for [x (range (- (first (:grid-size view)) 1)) y (range (- (last (:grid-size view)) 2))]
+    (.draw graphics (create-rect view [x y]))))
+
+(defn draw-blocks
+  [graphics view blocks]
+  (if (not (empty? blocks))
+    (.fill graphics (create-rect view (:position (first blocks))))
+    (draw-blocks graphics view (rest blocks))))
+
+(defn draw-old-blocks
+  [graphics view]
+  (.setColor graphics bright-gray)
+  (draw-blocks graphics view (:old-blocks view)))
+
+(defn draw-current-piece
+  [graphics view]
+  (.setColor graphics silver)
+  (draw-blocks graphics view (:current-piece view)))
+
 (defn onPaint [graphics]
-  (.setColor graphics bluishSilver)
-  (if (not (.isEmpty lastKeyStack)) (.drawString graphics (.pop lastKeyStack) 20 20)))
+  (let [view (tcore/game-view)]
+    (.setColor graphics silver)
+    (draw-empty-grid graphics view)
+    (draw-old-blocks graphics view)
+    (draw-current-piece graphics view)))
 
 (def main-panel
   (proxy [JPanel] []
     (paint [graphics]
       (do
         (let [panel-width (.getWidth (.getSize this)) panel-height (.getHeight (.getSize this))]
-          (.setColor graphics bluishGray)
+          (.setColor graphics gray)
           (.fillRect graphics 0 0 panel-width panel-height)
           (onPaint graphics))))))
 
