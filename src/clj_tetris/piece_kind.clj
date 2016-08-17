@@ -1,0 +1,18 @@
+(ns clj-tetris.piece-kind)
+
+(defprotocol PieceKind)
+;(defrecord IKind [] PieceKind)
+;(defrecord JKind [] PieceKind)
+;(defrecord LKind [] PieceKind)
+;(defrecord OKind [] PieceKind)
+;(defrecord SKind [] PieceKind)
+(defrecord TKind [] PieceKind)
+;(defrecord ZKind [] PieceKind)
+
+;(def i-kind (IKind.))
+;(def j-kind (JKind.))
+;(def l-kind (LKind.))
+;(def o-kind (OKind.))
+;(def s-kind (SKind.))
+(def t-kind (TKind.))
+;(def z-kind (ZKind.))

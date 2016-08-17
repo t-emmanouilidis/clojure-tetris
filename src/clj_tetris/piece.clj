@@ -1,4 +1,5 @@
-(ns clj-tetris.piece)
+(ns clj-tetris.piece
+  (:require [clj-tetris.piece-kind :refer :all]))
 
 (defrecord Block [position piece-kind])
 
@@ -9,12 +10,14 @@
   (let [piece-posisition (:position piece)
         pos-x (first piece-posisition)
         pos-y (last piece-posisition)]
+    (println (str "piece position:[" pos-x ", " pos-y "]"))
     (map
       (fn
         [[local-pos-x local-pos-y]]
         (Block.
-          (int (Math/floor (+ local-pos-x pos-x)))
-          (int (Math/floor (+ local-pos-y pos-y)))))
+          (vector (int (Math/floor (+ local-pos-x pos-x)))
+                  (int (Math/floor (+ local-pos-y pos-y))))
+          (:kind piece)))
       (:local-points piece))))
 
 (defn movie-piece
@@ -23,10 +26,12 @@
         old-pos-x (first piece-position)
         old-pos-y (last piece-position)
         new-position (vector (+ old-pos-x (first delta)) (+ old-pos-y (last delta)))]
+    (println (str "Old position:" piece-position ". New position:" new-position))
     (Piece. new-position (:kind piece) (:local-points piece))))
 
 (defn create-piece
-  [position pieceKind]
-  (case pieceKind
-    (IKind) (Piece. position pieceKind (vector [-1.0 0.0] [0.0 0.0] [1.0 0.0] [0.0 1.0]))
-    "default" (throw (IllegalStateException. (str "Tried to create a piece of kind" (type pieceKind))))))
+  [position piece-kind]
+  (println (str (type piece-kind)))
+  (cond
+    (= t-kind piece-kind) (Piece. position piece-kind (vector [-1.0 0.0] [0.0 0.0] [1.0 0.0] [0.0 1.0]))
+    :else (throw (IllegalStateException. (str "Tried to create a piece of kind" (type piece-kind))))))

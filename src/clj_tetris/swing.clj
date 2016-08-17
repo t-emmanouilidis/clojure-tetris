@@ -2,7 +2,6 @@
   (:gen-class)
   (:import [javax.swing AbstractAction KeyStroke JPanel JFrame])
   (:import [java.awt Color Rectangle])
-  (:import [java.util Stack])
   (:require [clj-tetris.core :as tcore :refer :all]))
 
 (def gray (Color. 48 99 99))
@@ -11,10 +10,6 @@
 (def bright-gray (Color. 228 242 242))
 
 (def main-frame (JFrame. "Tetris"))
-
-(def lastKeyStack (Stack.))
-
-(defn onKeyPress [key] (.push lastKeyStack key))
 
 (def block-size 5)
 (def block-margin 5)
@@ -50,7 +45,7 @@
   (draw-blocks graphics view (:current-piece view)))
 
 (defn onPaint [graphics]
-  (let [view (tcore/game-view)]
+  (let [view (@tcore/game-view)]
     (.setColor graphics silver)
     (draw-empty-grid graphics view)
     (draw-old-blocks graphics view)
@@ -65,11 +60,32 @@
           (.fillRect graphics 0 0 panel-width panel-height)
           (onPaint graphics))))))
 
-(def tetris-space-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "SPACE") (.repaint main-panel))))
-(def tetris-down-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "DOWN") (.repaint main-panel))))
-(def tetris-up-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "UP") (.repaint main-panel))))
-(def tetris-left-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "LEFT") (.repaint main-panel))))
-(def tetris-right-action (proxy [AbstractAction] [] (actionPerformed [event] (onKeyPress "RIGHT") (.repaint main-panel))))
+(def tetris-space-action
+  (proxy [AbstractAction] []
+    (actionPerformed [event]
+      (.repaint main-panel))))
+
+(def tetris-down-action
+  (proxy [AbstractAction] []
+    (actionPerformed [event]
+      (.repaint main-panel))))
+
+(def tetris-up-action
+  (proxy [AbstractAction] []
+    (actionPerformed [event]
+      (.repaint main-panel))))
+
+(def tetris-left-action
+  (proxy [AbstractAction] []
+    (actionPerformed [event]
+      (tcore/move-left)
+      (.repaint main-panel))))
+
+(def tetris-right-action
+  (proxy [AbstractAction] []
+    (actionPerformed [event]
+      (tcore/move-right)
+      (.repaint main-panel))))
 
 (defn -main
   [& args]
