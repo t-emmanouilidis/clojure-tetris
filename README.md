@@ -1,6 +1,7 @@
 # clj-tetris
 
-A clojure implementation of the popular block game
+A clojure implementation of the popular block game.
+Inspired by the excellent blog post series in http://eed3si9n.com/tetrix-in-scala.
 
 ## Installation
 
