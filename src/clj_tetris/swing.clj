@@ -6,12 +6,12 @@
 
 (def gray (Color. 48 99 99))
 (def silver (Color. 210 255 255))
-(def lighter-gray (Color. 165 185 185))
+(def light-gray (Color. 165 185 185))
 (def bright-gray (Color. 228 242 242))
 
 (def main-frame (JFrame. "Tetris"))
 
-(def block-size 10)
+(def block-size 20)
 (def block-margin 5)
 (def block-size-plus-margin (+ block-size block-margin))
 
@@ -24,9 +24,11 @@
 
 (defn draw-empty-grid
   [graphics [size-x size-y]]
-  (.setColor graphics lighter-gray)
+  (.setColor graphics light-gray)
   (for [x (range (- size-x 1)) y (range (- size-y 2))]
-    (.draw graphics (create-rect (vector size-x size-y) [x y]))))
+    (do
+      (println (str "Drawing empty string block:" x y))
+      (.draw graphics (create-rect (vector size-x size-y) [x y])))))
 
 (defn draw-blocks
   [graphics blocks size-of-grid]
@@ -36,22 +38,23 @@
         (draw-blocks graphics (rest blocks) size-of-grid))))
 
 (defn draw-old-blocks
-  [graphics view]
+  [graphics old-blocks size-of-grid]
   (.setColor graphics bright-gray)
-  (draw-blocks graphics (:old-blocks view) (:grid-size view)))
+  (draw-blocks graphics old-blocks size-of-grid))
 
 (defn draw-current-piece
-  [graphics view]
+  [graphics size-of-grid]
   (.setColor graphics silver)
-  (draw-blocks graphics (tcore/current-piece-blocks) (:grid-size view)))
+  (draw-blocks graphics (tcore/current-piece-blocks) size-of-grid))
 
 (defn onPaint [graphics]
   (let [view @tcore/game-view
-        size-of-grid (:grid-size view)]
+        size-of-grid (:grid-size view)
+        old-blocks (:old-blocks view)]
     (.setColor graphics silver)
-    (draw-empty-grid graphics (:grid-size view))
-    (draw-old-blocks graphics view)
-    (draw-current-piece graphics view)))
+    (draw-empty-grid graphics size-of-grid)
+    (draw-old-blocks graphics old-blocks size-of-grid)
+    (draw-current-piece graphics size-of-grid)))
 
 (def main-panel
   (proxy [JPanel] []
