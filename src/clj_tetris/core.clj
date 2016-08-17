@@ -19,7 +19,22 @@
       grid-size
       current-piece)))
 
-(def game-view (atom initial-view))
+(defn current-piece-bounds-validator
+  [{:keys [current-piece]}]
+  (let [all-block-positions (map :position (piece-current-blocks current-piece))]
+    (if (some
+          (fn [[x y]]
+            (not
+              (and
+                (>= x 0)
+                (< x (first grid-size))
+                (>= y 0)
+                (< y (last grid-size)))))
+          all-block-positions)
+      false
+      true)))
+
+(def game-view (atom initial-view :validator current-piece-bounds-validator))
 
 (defn reset-view
   []
