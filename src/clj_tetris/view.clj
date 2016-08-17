@@ -23,12 +23,10 @@
 
 (defn move-view-by
   [current-view delta]
-  (println (str "Current view: " current-view))
   (let [current-piece (:current-piece current-view)
         moved-view (add-piece-to-view
                      (remove-piece-from-view current-view current-piece)
                      (piece/move-piece current-piece delta))]
-    (println (str "Moved view: " moved-view))
     moved-view))
 
 (defn move-view-left [view] (move-view-by view (vector -1.0 0.0)))
