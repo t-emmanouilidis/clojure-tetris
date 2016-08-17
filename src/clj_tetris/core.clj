@@ -1,7 +1,8 @@
 (ns clj-tetris.core
   (:require [clj-tetris.piece :refer :all])
   (:require [clj-tetris.view :refer :all])
-  (:require [clj-tetris.piece-kind :refer :all])
+  (:require [clj-tetris.piece-kind :refer :all]
+            [clj-tetris.piece :as piece])
   (:import (clj_tetris.view GameView)
            (clj_tetris.piece Block)))
 
@@ -26,3 +27,7 @@
 (defn move-right
   []
   (swap! game-view (fn [current-view] (move-view-right current-view))))
+
+(defn current-piece-blocks
+  []
+  (piece/piece-current-blocks (:current-piece @game-view)))

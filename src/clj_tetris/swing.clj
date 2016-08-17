@@ -11,43 +11,45 @@
 
 (def main-frame (JFrame. "Tetris"))
 
-(def block-size 5)
+(def block-size 10)
 (def block-margin 5)
 (def block-size-plus-margin (+ block-size block-margin))
 
 (defn create-rect
-  [view [pos-x, pos-y]]
+  [[size-x size-y] [pos-x, pos-y]]
   (Rectangle. (* pos-x block-size-plus-margin)
-              (* (- (last (:grid-size view)) pos-y) block-size-plus-margin)
+              (* (- size-y pos-y) block-size-plus-margin)
               block-size
               block-size))
 
 (defn draw-empty-grid
-  [graphics view]
+  [graphics [size-x size-y]]
   (.setColor graphics lighter-gray)
-  (for [x (range (- (first (:grid-size view)) 1)) y (range (- (last (:grid-size view)) 2))]
-    (.draw graphics (create-rect view [x y]))))
+  (for [x (range (- size-x 1)) y (range (- size-y 2))]
+    (.draw graphics (create-rect (vector size-x size-y) [x y]))))
 
 (defn draw-blocks
-  [graphics view blocks]
+  [graphics blocks size-of-grid]
+  (println (str "Draw blocks:" `(~@(map :position blocks))))
   (if (not (empty? blocks))
-    (.fill graphics (create-rect view (:position (first blocks))))
-    (draw-blocks graphics view (rest blocks))))
+    (do (.fill graphics (create-rect size-of-grid (:position (first blocks))))
+        (draw-blocks graphics (rest blocks) size-of-grid))))
 
 (defn draw-old-blocks
   [graphics view]
   (.setColor graphics bright-gray)
-  (draw-blocks graphics view (:old-blocks view)))
+  (draw-blocks graphics (:old-blocks view) (:grid-size view)))
 
 (defn draw-current-piece
   [graphics view]
   (.setColor graphics silver)
-  (draw-blocks graphics view (:current-piece view)))
+  (draw-blocks graphics (tcore/current-piece-blocks) (:grid-size view)))
 
 (defn onPaint [graphics]
-  (let [view (@tcore/game-view)]
+  (let [view @tcore/game-view
+        size-of-grid (:grid-size view)]
     (.setColor graphics silver)
-    (draw-empty-grid graphics view)
+    (draw-empty-grid graphics (:grid-size view))
     (draw-old-blocks graphics view)
     (draw-current-piece graphics view)))
 
@@ -106,10 +108,10 @@
   ;Setup panel properties
   (.setContentPane main-frame main-panel)
 
-  (.setSize main-panel 200 200)
+  (.setSize main-panel 700 400)
   (.setFocusable main-panel true)
 
-  (.setSize main-frame 200 200)
+  (.setSize main-frame 700 400)
   (.setVisible main-frame true))
 
 
