@@ -12,11 +12,11 @@
 (def main-frame (JFrame. "Tetris"))
 
 (def block-size 20)
-(def block-margin 5)
+(def block-margin 3)
 (def block-size-plus-margin (+ block-size block-margin))
 
 (defn create-rect
-  [[size-x size-y] [pos-x, pos-y]]
+  [[size-x size-y] [pos-x pos-y]]
   (Rectangle. (* pos-x block-size-plus-margin)
               (* (- size-y pos-y) block-size-plus-margin)
               block-size
@@ -25,45 +25,48 @@
 (defn draw-empty-grid
   [graphics [size-x size-y]]
   (.setColor graphics light-gray)
-  (for [x (range (- size-x 1)) y (range (- size-y 2))]
-    (do
-      (println (str "Drawing empty string block:" x y))
-      (.draw graphics (create-rect (vector size-x size-y) [x y])))))
+  (let [panel-block-positions (for [x (range (- size-x 1)) y (range (- size-y 1))] [x y])]
+    (loop [remaining-block-positions panel-block-positions]
+      (if (not (empty? remaining-block-positions))
+        (do
+          (let [[x y] (first remaining-block-positions)]
+            (.draw graphics (create-rect [size-x size-y] [x y])))
+          (recur (rest remaining-block-positions)))))))
 
 (defn draw-blocks
   [graphics blocks size-of-grid]
-  (println (str "Draw blocks:" `(~@(map :position blocks))))
   (if (not (empty? blocks))
     (do (.fill graphics (create-rect size-of-grid (:position (first blocks))))
         (draw-blocks graphics (rest blocks) size-of-grid))))
 
-(defn draw-old-blocks
-  [graphics old-blocks size-of-grid]
+(defn draw-all-blocks
+  [graphics all-blocks size-of-grid]
   (.setColor graphics bright-gray)
-  (draw-blocks graphics old-blocks size-of-grid))
+  (draw-blocks graphics all-blocks size-of-grid))
 
 (defn draw-current-piece
   [graphics size-of-grid]
   (.setColor graphics silver)
   (draw-blocks graphics (tcore/current-piece-blocks) size-of-grid))
 
-(defn onPaint [graphics]
+(defn onPaint
+  [graphics]
   (let [view @tcore/game-view
         size-of-grid (:grid-size view)
-        old-blocks (:old-blocks view)]
+        all-blocks (:all-blocks view)]
     (.setColor graphics silver)
     (draw-empty-grid graphics size-of-grid)
-    (draw-old-blocks graphics old-blocks size-of-grid)
+    (draw-all-blocks graphics all-blocks size-of-grid)
     (draw-current-piece graphics size-of-grid)))
 
 (def main-panel
   (proxy [JPanel] []
     (paint [graphics]
-      (do
-        (let [panel-width (.getWidth (.getSize this)) panel-height (.getHeight (.getSize this))]
-          (.setColor graphics gray)
-          (.fillRect graphics 0 0 panel-width panel-height)
-          (onPaint graphics))))))
+      (let [panel-width (.getWidth (.getSize this))
+            panel-height (.getHeight (.getSize this))]
+        (.setColor graphics gray)
+        (.fillRect graphics 0 0 panel-width panel-height)
+        (onPaint graphics)))))
 
 (def tetris-space-action
   (proxy [AbstractAction] []

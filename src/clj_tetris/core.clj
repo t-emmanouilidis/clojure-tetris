@@ -16,7 +16,7 @@
   (let [current-piece (create-piece drop-off-pos t-kind)]
     (atom
       (GameView.
-        (conj (piece-current-blocks current-piece) (Block. (vector 0 0) t-kind))
+        (conj (piece-current-blocks current-piece) (Block. [0 0] t-kind))
         grid-size
         current-piece))))
 

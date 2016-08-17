@@ -33,5 +33,5 @@
   [position piece-kind]
   (println (str (type piece-kind)))
   (cond
-    (= t-kind piece-kind) (Piece. position piece-kind (vector [-1.0 0.0] [0.0 0.0] [1.0 0.0] [0.0 1.0]))
+    (= t-kind piece-kind) (Piece. position piece-kind [[-1.0 0.0] [0.0 0.0] [1.0 0.0] [0.0 1.0]])
     :else (throw (IllegalStateException. (str "Tried to create a piece of kind" (type piece-kind))))))

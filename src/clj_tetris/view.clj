@@ -29,5 +29,5 @@
                      (piece/move-piece current-piece delta))]
     moved-view))
 
-(defn move-view-left [view] (move-view-by view (vector -1.0 0.0)))
-(defn move-view-right [view] (move-view-by view (vector 1.0 0.0)))
+(defn move-view-left [view] (move-view-by view [-1.0 0.0]))
+(defn move-view-right [view] (move-view-by view [1.0 0.0]))
