@@ -20,7 +20,7 @@
           (:kind piece)))
       (:local-points piece))))
 
-(defn movie-piece
+(defn move-piece
   [piece delta]
   (let [piece-position (:position piece)
         old-pos-x (first piece-position)

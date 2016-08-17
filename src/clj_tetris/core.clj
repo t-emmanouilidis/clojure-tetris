@@ -15,16 +15,18 @@
   (let [current-piece (create-piece drop-off-pos t-kind)]
     (atom
       (GameView.
-        (conj (piece-current-blocks current-piece) (Block. (vector 0.0 0.0) t-kind))
+        (conj (piece-current-blocks current-piece) (Block. (vector 0 0) t-kind))
         grid-size
         current-piece))))
 
 (defn move-left
   []
   (let [current-view @game-view]
+    (println (str current-view))
     (swap! game-view (move-view-left current-view))))
 
 (defn move-right
   []
   (let [current-view @game-view]
+    (println (str current-view))
     (swap! game-view (move-view-right current-view))))
