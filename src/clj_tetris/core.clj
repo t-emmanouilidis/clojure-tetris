@@ -12,13 +12,18 @@
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) (- size-y 3.0)]))
 
-(def game-view
+(def initial-view
   (let [current-piece (create-piece drop-off-pos t-kind)]
-    (atom
-      (GameView.
-        (conj (piece-current-blocks current-piece) (Block. [0 0] t-kind))
-        grid-size
-        current-piece))))
+    (GameView.
+      (conj (piece-current-blocks current-piece) (Block. [0 0] t-kind))
+      grid-size
+      current-piece)))
+
+(def game-view (atom initial-view))
+
+(defn reset-view
+  []
+  (swap! game-view (fn [current-state] initial-view)))
 
 (defn move-left
   []
@@ -28,6 +33,4 @@
   []
   (swap! game-view (fn [current-view] (move-view-right current-view))))
 
-(defn current-piece-blocks
-  []
-  (piece/piece-current-blocks (:current-piece @game-view)))
+(defn current-piece-blocks [] (piece/piece-current-blocks (:current-piece @game-view)))

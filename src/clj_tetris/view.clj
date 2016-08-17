@@ -3,7 +3,7 @@
 
 (defrecord GameView [all-blocks grid-size current-piece])
 
-(defn remove-piece-from-view
+(defn- remove-piece-from-view
   [view piece]
   (let [grid-size (:grid-size view)
         current-block-positions (into #{} (map :position (piece-current-blocks piece)))
@@ -11,17 +11,14 @@
         blocks-without-current (filter
                                  (fn [block] (not (contains? current-block-positions (:position block))))
                                  view-blocks)]
-    (println (str "current-block-positions: " `(~@current-block-positions)))
-    (println (str "view-blocks: " `(~@(map :position view-blocks))))
-    (println (str "blocks-without-current: " `(~@(map :position blocks-without-current))))
     (GameView. blocks-without-current grid-size nil)))
 
-(defn add-piece-to-view [view moved-piece]
+(defn- add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
         blocks-with-moved-current (into (:all-blocks view) (piece-current-blocks moved-piece))]
     (GameView. blocks-with-moved-current grid-size moved-piece)))
 
-(defn move-view-by
+(defn- move-view-by
   [current-view delta]
   (let [current-piece (:current-piece current-view)
         moved-view (add-piece-to-view

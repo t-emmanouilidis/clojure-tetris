@@ -10,7 +10,6 @@
   (let [piece-posisition (:position piece)
         pos-x (first piece-posisition)
         pos-y (last piece-posisition)]
-    (println (str "piece position:[" pos-x ", " pos-y "]"))
     (map
       (fn
         [[local-pos-x local-pos-y]]
@@ -26,7 +25,6 @@
         old-pos-x (first piece-position)
         old-pos-y (last piece-position)
         new-position (vector (+ old-pos-x (first delta)) (+ old-pos-y (last delta)))]
-    (println (str "Old position:" piece-position ". New position:" new-position))
     (Piece. new-position (:kind piece) (:local-points piece))))
 
 (defn create-piece
