@@ -21,12 +21,8 @@
 
 (defn move-left
   []
-  (let [current-view @game-view]
-    (println (str current-view))
-    (swap! game-view (move-view-left current-view))))
+  (swap! game-view (fn [current-view] (move-view-left current-view))))
 
 (defn move-right
   []
-  (let [current-view @game-view]
-    (println (str current-view))
-    (swap! game-view (move-view-right current-view))))
+  (swap! game-view (fn [current-view] (move-view-right current-view))))
