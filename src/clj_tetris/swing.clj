@@ -77,6 +77,7 @@
 (def tetris-down-action
   (proxy [AbstractAction] []
     (actionPerformed [event]
+      (tcore/move-down)
       (.repaint main-panel))))
 
 (def tetris-up-action

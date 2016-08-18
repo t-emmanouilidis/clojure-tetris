@@ -49,3 +49,11 @@
           (reset-view (vector (Block. [3 17] t-kind)))
           (move-left))
         #{[3 17] [4 17] [5 17] [6 17] [5 18]}))))
+
+(deftest test-moving-down
+  (testing "Test that the current piece is moving down correctly"
+    (is (correct-block-positions?
+          (do
+            (reset-view [])
+            (move-down))
+          #{[4 16] [5 16] [6 16] [5 17]}))))

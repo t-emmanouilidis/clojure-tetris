@@ -27,6 +27,7 @@
 
 (defn move-view-left [view] (move-view-by view [-1.0 0.0]))
 (defn move-view-right [view] (move-view-by view [1.0 0.0]))
+(defn move-view-down [view] (move-view-by view [0.0 -1.0]))
 
 (defn rotate-view-cw
   [current-view]
