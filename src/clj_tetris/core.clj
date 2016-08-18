@@ -2,8 +2,7 @@
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece :as piece])
-  (:import (clj_tetris.view GameView)
-           (clj_tetris.piece Block)))
+  (:import (clj_tetris.view GameView)))
 
 (def grid-size [10 20])
 
@@ -14,11 +13,7 @@
 (defn pos-not-in-bounds?
   [all-current-block-positions]
   (some
-    (fn [[x y]] (not (and
-                       (>= x 0)
-                       (< x (first grid-size))
-                       (>= y 0)
-                       (< y (last grid-size)))))
+    (fn [[x y]] (not (and (>= x 0) (< x (first grid-size)) (>= y 0) (< y (last grid-size)))))
     all-current-block-positions))
 
 (defn block-position-more-than-once?

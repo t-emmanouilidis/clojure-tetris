@@ -9,11 +9,13 @@
 
 (defn correct-block-positions?
   [current-view correct-positions]
-  (if (some
-        #(not (contains? correct-positions %))
-        (into #{} (map :position (:all-blocks current-view))))
-    false
-    true))
+  (let [all-block-positions (mapv :position (:all-blocks current-view))]
+    (if (or (some
+              #(not (contains? correct-positions %))
+              (into #{} all-block-positions))
+            (not (= (count correct-positions) (count all-block-positions))))
+      false
+      true)))
 
 (deftest initial-view-test
   (testing "Test that the positions of the blocks for the initial view are the correct ones"
@@ -57,3 +59,15 @@
             (reset-view [])
             (move-down))
           #{[4 16] [5 16] [6 16] [5 17]}))))
+
+(deftest test-new-piece-spawning
+  (testing "Test that a new piece spawns when the current piece reached the maximum depth"
+    (is
+      (correct-block-positions?
+        (do
+          (reset-view (vector (Block. [5 14] t-kind)))
+          (move-down)
+          (move-down))
+        #{[5 14]
+          [4 15] [5 15] [6 15] [5 16]
+          [4 17] [5 17] [6 17] [5 18]}))))
