@@ -1,7 +1,8 @@
 (ns clj-tetris.swing
   (:gen-class)
-  (:import [javax.swing AbstractAction KeyStroke JPanel JFrame])
-  (:import [java.awt Color Rectangle])
+  (:import [javax.swing AbstractAction KeyStroke JPanel JFrame Timer])
+  (:import [java.awt Color Rectangle]
+           (java.util TimerTask))
   (:require [clj-tetris.core :as tcore :refer :all]))
 
 (def gray (Color. 48 99 99))
@@ -120,7 +121,20 @@
   (.setFocusable main-panel true)
 
   (.setSize main-frame 700 700)
-  (.setVisible main-frame true))
+  (.setVisible main-frame true)
+
+  (.start
+    (Timer.
+      100
+      (proxy [AbstractAction] []
+        (actionPerformed [event] (.repaint main-panel)))))
+
+  (.scheduleAtFixedRate
+    (java.util.Timer.)
+    (proxy [TimerTask] []
+      (run [] (move-down)))
+    0
+    1000))
 
 
 

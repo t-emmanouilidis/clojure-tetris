@@ -2,7 +2,8 @@
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece :as piece])
-  (:import (clj_tetris.view GameView)))
+  (:import (clj_tetris.view GameView))
+  (:import [java.util Timer TimerTask]))
 
 (def grid-size [10 20])
 
@@ -83,4 +84,3 @@
 
 (defn current-piece [] (:current-piece @game-view))
 (defn current-piece-blocks [] (piece/piece-current-blocks (current-piece)))
-
