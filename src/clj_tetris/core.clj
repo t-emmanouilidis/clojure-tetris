@@ -31,7 +31,7 @@
                 (>= y 0)
                 (< y (last grid-size)))))
           all-block-positions)
-      false
+      (throw (IllegalStateException. "Current piece reached the bounds!"))
       true)))
 
 (def game-view (atom initial-view :validator current-piece-bounds-validator))
@@ -42,10 +42,22 @@
 
 (defn move-left
   []
-  (swap! game-view (fn [current-view] (move-view-left current-view))))
+  (try
+    (swap! game-view (fn [current-view] (move-view-left current-view)))
+    (catch IllegalStateException ise (println "Moving left: " (.getMessage ise)))))
 
 (defn move-right
   []
-  (swap! game-view (fn [current-view] (move-view-right current-view))))
+  (try
+    (swap! game-view (fn [current-view] (move-view-right current-view)))
+    (catch IllegalStateException ise (println "Moving right: " (.getMessage ise)))))
 
-(defn current-piece-blocks [] (piece/piece-current-blocks (:current-piece @game-view)))
+(defn rotate-cw
+  []
+  (try
+    (swap! game-view (fn [current-view] (rotate-view-cw current-view)))
+    (catch IllegalStateException ise (println "Rotating clock-wise: " (.getMessage ise)))))
+
+(defn current-piece [] (:current-piece @game-view))
+(defn current-piece-blocks [] (piece/piece-current-blocks (current-piece)))
+

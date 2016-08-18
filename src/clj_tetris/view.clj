@@ -20,11 +20,17 @@
 
 (defn- move-view-by
   [current-view delta]
-  (let [current-piece (:current-piece current-view)
-        moved-view (add-piece-to-view
-                     (remove-piece-from-view current-view current-piece)
-                     (piece/move-piece current-piece delta))]
-    moved-view))
+  (let [current-piece (:current-piece current-view)]
+    (add-piece-to-view
+      (remove-piece-from-view current-view current-piece)
+      (piece/move-piece current-piece delta))))
 
 (defn move-view-left [view] (move-view-by view [-1.0 0.0]))
 (defn move-view-right [view] (move-view-by view [1.0 0.0]))
+
+(defn rotate-view-cw
+  [current-view]
+  (let [current-piece (:current-piece current-view)]
+    (add-piece-to-view
+      (remove-piece-from-view current-view current-piece)
+      (piece/rotate-piece current-piece))))

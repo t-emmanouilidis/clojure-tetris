@@ -27,6 +27,27 @@
         new-position (vector (+ old-pos-x (first delta)) (+ old-pos-y (last delta)))]
     (Piece. new-position (:kind piece) (:local-points piece))))
 
+
+(defn rotate-piece
+  [piece]
+  (let [theta (/ (- Math/PI) 2.0)
+        cos-theta (Math/cos theta)
+        sin-theta (Math/sin theta)
+        current-position (:position piece)
+        local-points (:local-points piece)
+        piece-kind (:kind piece)]
+    (Piece. current-position piece-kind
+            (mapv
+              (comp
+                (fn [[x y]]
+                  [(* (Math/round (* (double x) 2.0)) 0.5)
+                   (* (Math/round (* (double y) 2.0)) 0.5)])
+                (fn [[x y]]
+                  [(- (* cos-theta x) (* sin-theta y))
+                   (+ (* sin-theta x) (* cos-theta y))]))
+              local-points))))
+
+
 (defn create-piece
   [position piece-kind]
   (println (str (type piece-kind)))
