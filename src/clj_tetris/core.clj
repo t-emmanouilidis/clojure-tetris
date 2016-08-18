@@ -2,8 +2,7 @@
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece :as piece])
-  (:import (clj_tetris.view GameView))
-  (:import [java.util Timer TimerTask]))
+  (:import (clj_tetris.view GameView)))
 
 (def grid-size [10 20])
 
