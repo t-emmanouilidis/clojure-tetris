@@ -57,11 +57,21 @@
     (catch IllegalStateException ise (println "Moving right: " (.getMessage ise))))
   @game-view)
 
+(defn spawn
+  []
+  (try
+    (swap! game-view (fn [current-view] (view/spawn-new-piece current-view drop-off-pos)))
+    (catch IllegalStateException ise (println "Spawning new piece: " (.getMessage ise))))
+  @game-view)
+
 (defn move-down
   []
   (try
     (swap! game-view (fn [current-view] (view/move-view-down current-view)))
-    (catch IllegalStateException ise (println "Moving down: " (.getMessage ise))))
+    (catch IllegalStateException ise
+      (do
+        (println "Moving down: " (.getMessage ise))
+        (spawn))))
   @game-view)
 
 (defn rotate-cw

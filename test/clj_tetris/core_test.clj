@@ -67,6 +67,7 @@
         (do
           (reset-view (vector (Block. [5 14] t-kind)))
           (move-down)
+          (move-down)
           (move-down))
         #{[5 14]
           [4 15] [5 15] [6 15] [5 16]
