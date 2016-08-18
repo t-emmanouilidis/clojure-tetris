@@ -11,34 +11,42 @@
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) (- size-y 3.0)]))
 
-(def initial-view
+(defn pos-not-in-bounds?
+  [all-current-block-positions]
+  (some
+    (fn [[x y]] (not (and
+                       (>= x 0)
+                       (< x (first grid-size))
+                       (>= y 0)
+                       (< y (last grid-size)))))
+    all-current-block-positions))
+
+(defn block-position-more-than-once?
+  [all-block-positions]
+  (some #(> (last %) 1) (frequencies all-block-positions)))
+
+(defn current-piece-bounds-validator
+  [{:keys [all-blocks current-piece]}]
+  (let [all-block-positions (mapv :position all-blocks)
+        all-current-block-positions (mapv :position (piece/piece-current-blocks current-piece))]
+    (cond (pos-not-in-bounds? all-current-block-positions) (throw (IllegalStateException. "Current piece reached the bounds!"))
+          (block-position-more-than-once? all-block-positions) (throw (IllegalStateException. "There is at least one block that overlaps with another!"))
+          :else true)))
+
+(defn initial-view
+  [initial-blocks]
   (let [current-piece (piece/create-piece drop-off-pos t-kind)]
     (GameView.
-      (conj (piece/piece-current-blocks current-piece) (Block. [0 0] t-kind))
+      (into (piece/piece-current-blocks current-piece) initial-blocks)
       grid-size
       current-piece)))
 
-(defn current-piece-bounds-validator
-  [{:keys [current-piece]}]
-  (let [all-block-positions (map :position (piece/piece-current-blocks current-piece))]
-    (if (some
-          (fn [[x y]]
-            (not
-              (and
-                (>= x 0)
-                (< x (first grid-size))
-                (>= y 0)
-                (< y (last grid-size)))))
-          all-block-positions)
-      (throw (IllegalStateException. "Current piece reached the bounds!"))
-      true)))
-
-(def game-view (atom initial-view :validator current-piece-bounds-validator))
+(def game-view (atom (initial-view (vector)) :validator current-piece-bounds-validator))
 
 (defn reset-view
-  []
+  [initial-blocks]
   (do
-    (swap! game-view (fn [current-state] initial-view))
+    (swap! game-view (fn [current-state] (initial-view initial-blocks)))
     @game-view))
 
 (defn move-left
