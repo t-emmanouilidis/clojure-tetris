@@ -1,6 +1,5 @@
 (ns clj-tetris.core
-  (:require [clj-tetris.piece :refer :all])
-  (:require [clj-tetris.view :refer :all])
+  (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece :as piece])
   (:import (clj_tetris.view GameView)
@@ -13,15 +12,15 @@
     [(/ size-x 2.0) (- size-y 3.0)]))
 
 (def initial-view
-  (let [current-piece (create-piece drop-off-pos t-kind)]
+  (let [current-piece (piece/create-piece drop-off-pos t-kind)]
     (GameView.
-      (conj (piece-current-blocks current-piece) (Block. [0 0] t-kind))
+      (conj (piece/piece-current-blocks current-piece) (Block. [0 0] t-kind))
       grid-size
       current-piece)))
 
 (defn current-piece-bounds-validator
   [{:keys [current-piece]}]
-  (let [all-block-positions (map :position (piece-current-blocks current-piece))]
+  (let [all-block-positions (map :position (piece/piece-current-blocks current-piece))]
     (if (some
           (fn [[x y]]
             (not
@@ -38,25 +37,33 @@
 
 (defn reset-view
   []
-  (swap! game-view (fn [current-state] initial-view)))
+  (do
+    (swap! game-view (fn [current-state] initial-view))
+    @game-view))
 
 (defn move-left
   []
-  (try
-    (swap! game-view (fn [current-view] (move-view-left current-view)))
-    (catch IllegalStateException ise (println "Moving left: " (.getMessage ise)))))
+  (do
+    (try
+      (swap! game-view (fn [current-view] (view/move-view-left current-view)))
+      (catch IllegalStateException ise (println "Moving left: " (.getMessage ise))))
+    @game-view))
 
 (defn move-right
   []
-  (try
-    (swap! game-view (fn [current-view] (move-view-right current-view)))
-    (catch IllegalStateException ise (println "Moving right: " (.getMessage ise)))))
+  (do
+    (try
+      (swap! game-view (fn [current-view] (view/move-view-right current-view)))
+      (catch IllegalStateException ise (println "Moving right: " (.getMessage ise))))
+    @game-view))
 
 (defn rotate-cw
   []
-  (try
-    (swap! game-view (fn [current-view] (rotate-view-cw current-view)))
-    (catch IllegalStateException ise (println "Rotating clock-wise: " (.getMessage ise)))))
+  (do
+    (try
+      (swap! game-view (fn [current-view] (view/rotate-view-cw current-view)))
+      (catch IllegalStateException ise (println "Rotating clock-wise: " (.getMessage ise))))
+    @game-view))
 
 (defn current-piece [] (:current-piece @game-view))
 (defn current-piece-blocks [] (piece/piece-current-blocks (current-piece)))

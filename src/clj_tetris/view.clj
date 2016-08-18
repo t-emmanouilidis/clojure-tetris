@@ -1,12 +1,12 @@
 (ns clj-tetris.view
-  (:require [clj-tetris.piece :as piece :refer :all]))
+  (:require [clj-tetris.piece :as piece]))
 
 (defrecord GameView [all-blocks grid-size current-piece])
 
 (defn- remove-piece-from-view
   [view piece]
   (let [grid-size (:grid-size view)
-        current-block-positions (into #{} (map :position (piece-current-blocks piece)))
+        current-block-positions (into #{} (map :position (piece/piece-current-blocks piece)))
         view-blocks (:all-blocks view)
         blocks-without-current (filter
                                  (fn [block] (not (contains? current-block-positions (:position block))))
@@ -15,7 +15,7 @@
 
 (defn- add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
-        blocks-with-moved-current (into (:all-blocks view) (piece-current-blocks moved-piece))]
+        blocks-with-moved-current (into (:all-blocks view) (piece/piece-current-blocks moved-piece))]
     (GameView. blocks-with-moved-current grid-size moved-piece)))
 
 (defn- move-view-by
