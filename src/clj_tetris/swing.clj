@@ -25,7 +25,7 @@
 (defn draw-empty-grid
   [graphics [size-x size-y]]
   (.setColor graphics light-gray)
-  (let [panel-block-positions (for [x (range (- size-x 1)) y (range (- size-y 1))] [x y])]
+  (let [panel-block-positions (for [x (range size-x) y (range size-y)] [x y])]
     (loop [remaining-block-positions panel-block-positions]
       (if (not (empty? remaining-block-positions))
         (do
@@ -71,6 +71,7 @@
 (def tetris-space-action
   (proxy [AbstractAction] []
     (actionPerformed [event]
+      (tcore/rotate-cw)
       (.repaint main-panel))))
 
 (def tetris-down-action
@@ -114,10 +115,10 @@
   ;Setup panel properties
   (.setContentPane main-frame main-panel)
 
-  (.setSize main-panel 700 400)
+  (.setSize main-panel 700 700)
   (.setFocusable main-panel true)
 
-  (.setSize main-frame 700 400)
+  (.setSize main-frame 700 700)
   (.setVisible main-frame true))
 
 

@@ -1,6 +1,8 @@
 (ns clj-tetris.piece
   (:require [clj-tetris.piece-kind :refer :all]))
 
+(def standard-rotation-theta (/ (- Math/PI) 2.0))
+
 (defrecord Block [position piece-kind])
 
 (defrecord Piece [position kind local-points])
@@ -30,7 +32,7 @@
 
 (defn rotate-piece
   [piece]
-  (let [theta (/ (- Math/PI) 2.0)
+  (let [theta standard-rotation-theta
         cos-theta (Math/cos theta)
         sin-theta (Math/sin theta)
         current-position (:position piece)
