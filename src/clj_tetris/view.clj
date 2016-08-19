@@ -40,3 +40,31 @@
 (defn spawn-new-piece
   [current-view drop-off-pos]
   (add-piece-to-view current-view (piece/create-piece drop-off-pos t-kind)))
+
+(defn- is-row-full?
+  [view row-num]
+  (let [size-x (first (:grid-size view))]
+    (= (count (filter
+                #(= (last %) row-num)
+                (map :position (:all-blocks view))))
+       size-x)))
+
+(defn- all-blocks-without-blocks-of-row
+  [view row-num]
+  (let [all-blocks (:all-blocks view)]
+    (filter
+      #(not (= (last (:position %)) row-num))
+      all-blocks)))
+
+(defn clear-full-rows
+  [view]
+  (let [grid-size (:grid-size view)
+        size-y (last grid-size)]
+    (loop [current-view view current-row (- size-y 1)]
+      (if (> current-row 0)
+        (do
+          (if (is-row-full? current-view current-row)
+            (recur
+              (GameView. all-blocks-without-blocks-of-row grid-size (:current-piece current-view))
+              (- current-row 1))
+            (recur current-view (- current-row 1))))))))

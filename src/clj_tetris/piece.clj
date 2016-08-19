@@ -16,17 +16,19 @@
       (fn
         [[local-pos-x local-pos-y]]
         (Block.
-          (vector (int (Math/floor (+ local-pos-x pos-x)))
-                  (int (Math/floor (+ local-pos-y pos-y))))
+          [(int (Math/floor (+ local-pos-x pos-x)))
+           (int (Math/floor (+ local-pos-y pos-y)))]
           (:kind piece)))
       (:local-points piece))))
 
 (defn move-piece
   [piece delta]
+  (println (str "Piece position " (:position piece)))
   (let [piece-position (:position piece)
         old-pos-x (first piece-position)
         old-pos-y (last piece-position)
-        new-position (vector (+ old-pos-x (first delta)) (+ old-pos-y (last delta)))]
+        new-position [(+ old-pos-x (first delta))
+                      (+ old-pos-y (last delta))]]
     (Piece. new-position (:kind piece) (:local-points piece))))
 
 

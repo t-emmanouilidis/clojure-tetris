@@ -72,3 +72,18 @@
         #{[5 14]
           [4 15] [5 15] [6 15] [5 16]
           [4 17] [5 17] [6 17] [5 18]}))))
+
+(defn- create-blocks-for-row
+  [size-x row-num]
+  (mapv
+    #(Block. [% row-num] t-kind)
+    (range size-x)))
+
+(deftest test-clearing-full-rows
+  (testing "Test that a row that is full gets correctly cleared when we're moving the current piece down"
+    (is
+      (correct-block-positions?
+        (do
+          (reset-view (create-blocks-for-row (last grid-size) 0))
+          (move-down))
+        #{[4 16] [5 16] [6 16] [5 17]}))))

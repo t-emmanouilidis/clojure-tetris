@@ -132,7 +132,8 @@
   (.scheduleAtFixedRate
     (java.util.Timer.)
     (proxy [TimerTask] []
-      (run [] (move-down)))
+      (run []
+        (move-down)))
     0
     1000))
 
