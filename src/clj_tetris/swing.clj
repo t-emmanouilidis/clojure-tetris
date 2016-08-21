@@ -125,7 +125,7 @@
 
   (.start
     (Timer.
-      100
+      50
       (proxy [AbstractAction] []
         (actionPerformed [event] (.repaint main-panel)))))
 

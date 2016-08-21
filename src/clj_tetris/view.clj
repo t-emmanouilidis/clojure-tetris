@@ -1,20 +1,21 @@
 (ns clj-tetris.view
   (:require [clj-tetris.piece :as piece])
-  (:require [clj-tetris.piece-kind :refer :all]))
+  (:require [clj-tetris.piece-kind :refer :all])
+  (:import (clj_tetris.piece Block Piece)))
 
 (defrecord GameView [all-blocks grid-size current-piece])
 
-(defn- remove-piece-from-view
+(defn remove-piece-from-view
   [view piece]
   (let [grid-size (:grid-size view)
         current-block-positions (into #{} (map :position (piece/piece-current-blocks piece)))
         view-blocks (:all-blocks view)
         blocks-without-current (filter
-                                 (fn [block] (not (contains? current-block-positions (:position block))))
+                                 #(not (contains? current-block-positions (:position %)))
                                  view-blocks)]
     (GameView. blocks-without-current grid-size nil)))
 
-(defn- add-piece-to-view [view new-piece]
+(defn add-piece-to-view [view new-piece]
   (let [grid-size (:grid-size view)
         blocks-with-moved-current (into (:all-blocks view) (piece/piece-current-blocks new-piece))]
     (GameView. blocks-with-moved-current grid-size new-piece)))
@@ -41,7 +42,7 @@
   [current-view drop-off-pos]
   (add-piece-to-view current-view (piece/create-piece drop-off-pos t-kind)))
 
-(defn- is-row-full?
+(defn is-row-full?
   [view row-num]
   (let [size-x (first (:grid-size view))]
     (= (count (filter
@@ -49,22 +50,40 @@
                 (map :position (:all-blocks view))))
        size-x)))
 
-(defn- all-blocks-without-blocks-of-row
+(defn blocks-above-row
   [view row-num]
   (let [all-blocks (:all-blocks view)]
-    (filter
-      #(not (= (last (:position %)) row-num))
+    (filterv
+      #(> (last (:position %)) row-num)
       all-blocks)))
+
+(defn blocks-below-row
+  [view row-num]
+  (let [all-blocks (:all-blocks view)]
+    (filterv
+      #(< (last (:position %)) row-num)
+      all-blocks)))
+
+(defn move-upper-blocks-down
+  [view row-num]
+  (let [upper-blocks (blocks-above-row view row-num)]
+    (mapv #(Block. [(first (:position %)) (dec (last (:position %)))] (:piece-kind %)) upper-blocks)))
 
 (defn clear-full-rows
   [view]
   (let [grid-size (:grid-size view)
         size-y (last grid-size)]
-    (loop [current-view view current-row (- size-y 1)]
-      (if (> current-row 0)
-        (do
-          (if (is-row-full? current-view current-row)
+    (loop [current-view view
+           current-row (dec size-y)]
+      (if (>= current-row 0)
+        (if (is-row-full? current-view current-row)
+          (let [current-piece (:current-piece current-view)]
             (recur
-              (GameView. all-blocks-without-blocks-of-row grid-size (:current-piece current-view))
-              (- current-row 1))
-            (recur current-view (- current-row 1))))))))
+              (GameView. (into
+                           (blocks-below-row current-view current-row)
+                           (move-upper-blocks-down current-view current-row))
+                         grid-size
+                         current-piece)
+              (dec current-row)))
+          (recur current-view (dec current-row)))
+        current-view))))

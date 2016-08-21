@@ -1,7 +1,9 @@
 (ns clj-tetris.core-test
   (:require [clojure.test :refer :all]
             [clj-tetris.core :refer :all]
-            [clj-tetris.piece-kind :refer :all])
+            [clj-tetris.piece-kind :refer :all]
+            [clj-tetris.view :as view]
+            [clj-tetris.piece :as piece])
   (:import (clj_tetris.piece Block)))
 
 (def nil-block (Block. [0 0] t-kind))
@@ -73,17 +75,36 @@
           [4 15] [5 15] [6 15] [5 16]
           [4 17] [5 17] [6 17] [5 18]}))))
 
-(defn- create-blocks-for-row
-  [size-x row-num]
-  (mapv
-    #(Block. [% row-num] t-kind)
-    (range size-x)))
 
 (deftest test-clearing-full-rows
   (testing "Test that a row that is full gets correctly cleared when we're moving the current piece down"
     (is
       (correct-block-positions?
         (do
-          (reset-view (create-blocks-for-row (last grid-size) 0))
-          (move-down))
-        #{[4 16] [5 16] [6 16] [5 17]}))))
+          (reset-view [(Block. [0 0] t-kind)
+                       (Block. [1 0] t-kind)
+                       (Block. [2 0] t-kind)
+                       (Block. [3 0] t-kind)
+                       (Block. [7 0] t-kind)
+                       (Block. [8 0] t-kind)
+                       (Block. [9 0] t-kind)])
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
+          )
+        #{[5 0] [4 17] [5 17] [6 17] [5 18]}))))
