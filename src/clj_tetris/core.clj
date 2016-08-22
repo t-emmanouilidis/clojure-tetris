@@ -65,12 +65,21 @@
       (println "Spawning new piece: " (.getMessage ise))))
   @game-view)
 
+(defn clear-full-rows
+  []
+  (try
+    (swap! game-view (fn [current-view] (view/clear-full-rows current-view)))
+    (catch IllegalStateException ise
+      (println "Clearing full rows: " (.getMessage ise))))
+  @game-view)
+
 (defn move-down
   []
   (try
-    (swap! game-view (fn [current-view] (view/clear-full-rows (view/move-view-down current-view))))
+    (swap! game-view (fn [current-view] (view/move-view-down current-view)))
     (catch IllegalStateException ise
       (println "Moving down: " (.getMessage ise))
+      (clear-full-rows)
       (spawn)))
   @game-view)
 

@@ -105,6 +105,5 @@
           (move-down)
           (move-down)
           (move-down)
-          (move-down)
-          )
+          (move-down))
         #{[5 0] [4 17] [5 17] [6 17] [5 18]}))))
