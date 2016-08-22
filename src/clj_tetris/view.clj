@@ -1,9 +1,9 @@
 (ns clj-tetris.view
   (:require [clj-tetris.piece :as piece])
-  (:require [clj-tetris.piece-kind :refer :all])
-  (:import (clj_tetris.piece Block Piece)))
+  (:require [clj-tetris.piece-kind :as piece-kind])
+  (:import (clj_tetris.piece Block)))
 
-(defrecord GameView [all-blocks grid-size current-piece])
+(defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds])
 
 (defn remove-piece-from-view
   [view piece]
@@ -13,12 +13,22 @@
         blocks-without-current (filter
                                  #(not (contains? current-block-positions (:position %)))
                                  view-blocks)]
-    (GameView. blocks-without-current grid-size nil)))
+    (GameView.
+      blocks-without-current
+      grid-size
+      nil
+      (:next-piece view)
+      (:next-piece-kinds view))))
 
-(defn add-piece-to-view [view new-piece]
+(defn add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
-        blocks-with-moved-current (into (:all-blocks view) (piece/piece-current-blocks new-piece))]
-    (GameView. blocks-with-moved-current grid-size new-piece)))
+        blocks-with-moved-piece (into (:all-blocks view) (piece/piece-current-blocks moved-piece))]
+    (GameView.
+      blocks-with-moved-piece
+      grid-size
+      moved-piece
+      (:next-piece view)
+      (:next-piece-kinds view))))
 
 (defn- move-view-by
   [current-view delta]
@@ -40,7 +50,18 @@
 
 (defn spawn-new-piece
   [current-view drop-off-pos]
-  (add-piece-to-view current-view (piece/create-piece drop-off-pos t-kind)))
+  (let [grid-size (:grid-size current-view)
+        current-piece (:next-piece current-view)
+        next-piece-kinds (:next-piece-kinds current-view)
+        next-piece-kind (first next-piece-kinds)
+        next-piece (piece/create-piece drop-off-pos next-piece-kind)
+        current-blocks (:all-blocks current-view)]
+    (GameView.
+      (into current-blocks (piece/piece-current-blocks current-piece))
+      grid-size
+      current-piece
+      next-piece
+      (rest next-piece-kinds))))
 
 (defn is-row-full?
   [view row-num]
@@ -77,13 +98,32 @@
            current-row (dec size-y)]
       (if (>= current-row 0)
         (if (is-row-full? current-view current-row)
-          (let [current-piece (:current-piece current-view)]
+          (let [current-piece (:current-piece current-view)
+                next-piece (:next-piece current-view)
+                next-piece-kinds (:next-piece-kinds current-view)]
             (recur
-              (GameView. (into
-                           (blocks-below-row current-view current-row)
-                           (move-upper-blocks-down current-view current-row))
-                         grid-size
-                         current-piece)
+              (GameView.
+                (into
+                  (blocks-below-row current-view current-row)
+                  (move-upper-blocks-down current-view current-row))
+                grid-size
+                current-piece
+                next-piece
+                next-piece-kinds)
               (dec current-row)))
           (recur current-view (dec current-row)))
         current-view))))
+
+(defn create-initial-view
+  [initial-blocks grid-size initial-next-piece-kinds drop-off-pos]
+  (let [next-piece-kinds (if (empty? initial-next-piece-kinds)
+                           initial-next-piece-kinds
+                           initial-next-piece-kinds)
+        current-piece (piece/create-piece drop-off-pos (first next-piece-kinds))
+        current-piece-blocks (piece/piece-current-blocks current-piece)]
+    (GameView.
+      (into initial-blocks current-piece-blocks)
+      grid-size
+      (piece/create-piece drop-off-pos (first next-piece-kinds))
+      (piece/create-piece drop-off-pos (first (rest next-piece-kinds)))
+      (rest (rest next-piece-kinds)))))

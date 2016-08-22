@@ -1,8 +1,7 @@
 (ns clj-tetris.core
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
-            [clj-tetris.piece :as piece])
-  (:import (clj_tetris.view GameView)))
+            [clj-tetris.piece :as piece]))
 
 (def grid-size [10 20])
 
@@ -29,18 +28,14 @@
           :else true)))
 
 (defn initial-view
-  [initial-blocks]
-  (let [current-piece (piece/create-piece drop-off-pos t-kind)]
-    (GameView.
-      (into (piece/piece-current-blocks current-piece) initial-blocks)
-      grid-size
-      current-piece)))
+  [initial-blocks next-piece-kinds]
+  (view/create-initial-view initial-blocks grid-size next-piece-kinds drop-off-pos))
 
-(def game-view (atom (initial-view (vector)) :validator current-piece-bounds-validator))
+(def game-view (atom (initial-view [] [t-kind t-kind t-kind t-kind t-kind t-kind]) :validator current-piece-bounds-validator))
 
 (defn reset-view
-  [initial-blocks]
-  (swap! game-view (fn [current-state] (initial-view initial-blocks)))
+  [initial-blocks next-piece-kinds]
+  (swap! game-view (fn [current-state] (initial-view initial-blocks next-piece-kinds)))
   @game-view)
 
 (defn move-left

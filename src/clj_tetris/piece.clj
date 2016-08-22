@@ -23,7 +23,6 @@
 
 (defn move-piece
   [piece delta]
-  (println (str "Piece position " (:position piece)))
   (let [piece-position (:position piece)
         old-pos-x (first piece-position)
         old-pos-y (last piece-position)
@@ -55,5 +54,11 @@
 (defn create-piece
   [position piece-kind]
   (cond
+    (= i-kind piece-kind) (Piece. position piece-kind [[-1.5 0.0] [-0.5 0.0] [0.5 0.0] [1.5 0.0]])
+    (= j-kind piece-kind) (Piece. position piece-kind [[-1.0 0.5] [0.0 0.5] [1.0 0.5] [1.0 -0.5]])
+    (= l-kind piece-kind) (Piece. position piece-kind [[-1.0 -0.5] [-1.0 0.5] [0.0 0.5] [1.0 0.5]])
+    (= o-kind piece-kind) (Piece. position piece-kind [[-0.5 0.5] [0.5 0.5] [0.5 -0.5] [-0.5 -0.5]])
+    (= s-kind piece-kind) (Piece. position piece-kind [[-1.0 -0.5] [0.0 -0.5] [0.0 0.5] [1.0 0.5]])
     (= t-kind piece-kind) (Piece. position piece-kind [[-1.0 0.0] [0.0 0.0] [1.0 0.0] [0.0 1.0]])
+    (= z-kind piece-kind) (Piece. position piece-kind [[-1.0 0.5] [0.0 0.5] [0.0 -0.5] [1.0 -0.5]])
     :else (throw (IllegalStateException. (str "Tried to create a piece of kind" (type piece-kind))))))
