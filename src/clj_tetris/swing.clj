@@ -71,7 +71,11 @@
         next-piece (:next-piece view)
         next-piece-blocks (tcore/piece-blocks next-piece)]
     (draw-board graphics 0 size-of-grid all-blocks current-piece-blocks)
-    (draw-board graphics 12 tcore/mini-grid-size [] next-piece-blocks)))
+    (draw-board graphics 12 tcore/mini-grid-size [] next-piece-blocks)
+    (if (:game-over view)
+      (do
+        (.setColor graphics grid-color)
+        (.drawString graphics "Game Over" (* 12 block-size-plus-margin) (* 7 block-size-plus-margin))))))
 
 (def main-panel
   (proxy [JPanel] []

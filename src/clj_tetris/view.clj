@@ -3,7 +3,7 @@
   (:require [clj-tetris.piece-kind :as piece-kind])
   (:import (clj_tetris.piece Block)))
 
-(defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds])
+(defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds game-over])
 
 (defn remove-piece-from-view
   [view piece]
@@ -18,7 +18,8 @@
       grid-size
       nil
       (:next-piece view)
-      (:next-piece-kinds view))))
+      (:next-piece-kinds view)
+      false)))
 
 (defn add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
@@ -28,7 +29,8 @@
       grid-size
       moved-piece
       (:next-piece view)
-      (:next-piece-kinds view))))
+      (:next-piece-kinds view)
+      false)))
 
 (defn- move-view-by
   [current-view delta]
@@ -48,6 +50,27 @@
       (remove-piece-from-view current-view current-piece)
       (piece/rotate-piece current-piece))))
 
+(defn current-piece-out-of-bounds?
+  [current-piece-block-positions [grid-size-x grid-size-y]]
+  (some
+    (fn [[pos-x pos-y]] (not (and (>= pos-x 0) (< pos-x grid-size-x) (>= pos-y 0) (< pos-y grid-size-y))))
+    current-piece-block-positions))
+
+(defn block-position-more-than-once?
+  [all-block-positions]
+  (some #(> (last %) 1) (frequencies all-block-positions)))
+
+(defn current-piece-in-illegal-state?
+  [view]
+  (let [all-blocks (:all-blocks view)
+        all-block-positions (map :position all-blocks)
+        grid-size (:grid-size view)
+        current-piece (:current-piece view)
+        current-piece-blocks (piece/piece-current-blocks current-piece)
+        current-piece-block-positions (map :position current-piece-blocks)]
+    (or (current-piece-out-of-bounds? current-piece-block-positions grid-size)
+        (block-position-more-than-once? all-block-positions))))
+
 (defn spawn-new-piece
   [current-view drop-off-pos]
   (let [grid-size (:grid-size current-view)
@@ -57,13 +80,14 @@
         next-piece-kinds (:next-piece-kinds current-view)
         next-piece-kind (first next-piece-kinds)
         next-piece (piece/create-piece [2 1] next-piece-kind)
-        current-blocks (:all-blocks current-view)]
-    (GameView.
-      (into current-blocks (piece/piece-current-blocks current-piece-with-correct-pos))
-      grid-size
-      current-piece-with-correct-pos
-      next-piece
-      (rest next-piece-kinds))))
+        current-blocks (:all-blocks current-view)
+        current-piece-blocks (piece/piece-current-blocks current-piece-with-correct-pos)
+        all-blocks (into current-blocks current-piece-blocks)
+        all-block-positions (map :position all-blocks)
+        next-next-piece-kinds (rest next-piece-kinds)]
+    (if (block-position-more-than-once? all-block-positions)
+      (assoc current-view :game-over true)
+      (GameView. all-blocks grid-size current-piece-with-correct-pos next-piece next-next-piece-kinds false))))
 
 (defn is-row-full?
   [view row-num]
@@ -111,7 +135,8 @@
                 grid-size
                 current-piece
                 next-piece
-                next-piece-kinds)
+                next-piece-kinds
+                false)
               (dec current-row)))
           (recur current-view (dec current-row)))
         current-view))))
@@ -130,28 +155,8 @@
       grid-size
       current-piece
       (piece/create-piece [2 1] (first next-piece-kinds))
-      next-next-piece-kinds)))
-
-(defn current-piece-out-of-bounds?
-  [current-piece-block-positions [grid-size-x grid-size-y]]
-  (some
-    (fn [[pos-x pos-y]] (not (and (>= pos-x 0) (< pos-x grid-size-x) (>= pos-y 0) (< pos-y grid-size-y))))
-    current-piece-block-positions))
-
-(defn block-position-more-than-once?
-  [all-block-positions]
-  (some #(> (last %) 1) (frequencies all-block-positions)))
-
-(defn current-piece-in-illegal-state?
-  [view]
-  (let [all-blocks (:all-blocks view)
-        all-block-positions (map :position all-blocks)
-        grid-size (:grid-size view)
-        current-piece (:current-piece view)
-        current-piece-blocks (piece/piece-current-blocks current-piece)
-        current-piece-block-positions (map :position current-piece-blocks)]
-    (or (current-piece-out-of-bounds? current-piece-block-positions grid-size)
-        (block-position-more-than-once? all-block-positions))))
+      next-next-piece-kinds
+      false)))
 
 (defn drop-view
   [view]

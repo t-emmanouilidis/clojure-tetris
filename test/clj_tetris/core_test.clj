@@ -160,3 +160,32 @@
                       [o-kind o-kind o-kind o-kind])
           (drop-down))
         #{[4 0] [4 1] [4 2] [5 2] [4 3] [5 3]}))))
+
+(deftest test-spawn-when-game-is-over
+  (testing "Test if the view has the correct status when game is over"
+    (is
+      (do
+        (reset-view [] [o-kind o-kind o-kind o-kind o-kind o-kind o-kind o-kind o-kind o-kind o-kind o-kind])
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (drop-down)
+        (move-down)
+        (:game-over @game-view)))))
