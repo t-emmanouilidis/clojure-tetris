@@ -17,48 +17,58 @@
 (def block-size-plus-margin (+ block-size block-margin))
 
 (defn create-rect
-  [[size-x size-y] [pos-x pos-y]]
-  (Rectangle. (* pos-x block-size-plus-margin)
+  [offset-x [size-x size-y] [pos-x pos-y]]
+  (Rectangle. (+ (* offset-x block-size-plus-margin) (* pos-x block-size-plus-margin))
               (* (- size-y pos-y) block-size-plus-margin)
               block-size
               block-size))
 
 (defn draw-empty-grid
-  [graphics [size-x size-y]]
+  [graphics offset-x [size-x size-y]]
   (.setColor graphics light-gray)
   (let [panel-block-positions (for [x (range size-x) y (range size-y)] [x y])]
     (loop [remaining-block-positions panel-block-positions]
       (if (not (empty? remaining-block-positions))
         (do
           (let [[x y] (first remaining-block-positions)]
-            (.draw graphics (create-rect [size-x size-y] [x y])))
+            (.draw graphics (create-rect offset-x [size-x size-y] [x y])))
           (recur (rest remaining-block-positions)))))))
 
 (defn draw-blocks
-  [graphics blocks size-of-grid]
+  [graphics offset-x size-of-grid blocks]
   (if (not (empty? blocks))
-    (do (.fill graphics (create-rect size-of-grid (:position (first blocks))))
-        (draw-blocks graphics (rest blocks) size-of-grid))))
+    (do
+      (.fill graphics (create-rect offset-x size-of-grid (:position (first blocks))))
+      (draw-blocks graphics offset-x size-of-grid (rest blocks)))))
 
 (defn draw-all-blocks
-  [graphics all-blocks size-of-grid]
+  [graphics offset-x size-of-grid all-blocks]
   (.setColor graphics bright-gray)
-  (draw-blocks graphics all-blocks size-of-grid))
+  (draw-blocks graphics offset-x size-of-grid all-blocks))
 
 (defn draw-current-piece
-  [graphics size-of-grid]
+  [graphics offset-x size-of-grid current-piece-blocks]
   (.setColor graphics silver)
-  (draw-blocks graphics (tcore/current-piece-blocks) size-of-grid))
+  (draw-blocks graphics offset-x size-of-grid current-piece-blocks))
+
+(defn draw-board
+  [graphics offset-x size-of-grid all-blocks current-piece-blocks]
+  (.setColor graphics silver)
+  (draw-empty-grid graphics offset-x size-of-grid)
+  (draw-all-blocks graphics offset-x size-of-grid all-blocks)
+  (draw-current-piece graphics offset-x size-of-grid current-piece-blocks))
 
 (defn onPaint
   [graphics]
   (let [view @tcore/game-view
         size-of-grid (:grid-size view)
-        all-blocks (:all-blocks view)]
-    (.setColor graphics silver)
-    (draw-empty-grid graphics size-of-grid)
-    (draw-all-blocks graphics all-blocks size-of-grid)
-    (draw-current-piece graphics size-of-grid)))
+        all-blocks (:all-blocks view)
+        current-piece (:current-piece view)
+        current-piece-blocks (tcore/piece-blocks current-piece)
+        next-piece (:next-piece view)
+        next-piece-blocks (tcore/piece-blocks next-piece)]
+    (draw-board graphics 0 size-of-grid all-blocks current-piece-blocks)
+    (draw-board graphics 12 tcore/mini-grid-size [] next-piece-blocks)))
 
 (def main-panel
   (proxy [JPanel] []

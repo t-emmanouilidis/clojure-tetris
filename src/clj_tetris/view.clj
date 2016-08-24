@@ -52,14 +52,16 @@
   [current-view drop-off-pos]
   (let [grid-size (:grid-size current-view)
         current-piece (:next-piece current-view)
+        current-piece-kind (:kind current-piece)
+        current-piece-with-correct-pos (piece/create-piece drop-off-pos current-piece-kind)
         next-piece-kinds (:next-piece-kinds current-view)
         next-piece-kind (first next-piece-kinds)
-        next-piece (piece/create-piece drop-off-pos next-piece-kind)
+        next-piece (piece/create-piece [2 1] next-piece-kind)
         current-blocks (:all-blocks current-view)]
     (GameView.
-      (into current-blocks (piece/piece-current-blocks current-piece))
+      (into current-blocks (piece/piece-current-blocks current-piece-with-correct-pos))
       grid-size
-      current-piece
+      current-piece-with-correct-pos
       next-piece
       (rest next-piece-kinds))))
 
@@ -127,5 +129,5 @@
       (into initial-blocks current-piece-blocks)
       grid-size
       current-piece
-      (piece/create-piece drop-off-pos (first next-piece-kinds))
+      (piece/create-piece [2 1] (first next-piece-kinds))
       next-next-piece-kinds)))

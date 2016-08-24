@@ -5,12 +5,11 @@
             [clj-tetris.piece-kind :as piece-kind]))
 
 (def grid-size [10 20])
+(def mini-grid-size [4 4])
 
 (def drop-off-pos
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) (- size-y 3.0)]))
-
-(def next-piece-kinds-lazy-seq (repeatedly (piece-kind/get-next-random-piece-kind)))
 
 (defn pos-not-in-bounds?
   [all-current-block-positions]
@@ -88,5 +87,4 @@
     (catch IllegalStateException ise (println "Rotating clock-wise: " (.getMessage ise))))
   @game-view)
 
-(defn current-piece [] (:current-piece @game-view))
-(defn current-piece-blocks [] (piece/piece-current-blocks (current-piece)))
+(defn piece-blocks [piece] (piece/piece-current-blocks piece))
