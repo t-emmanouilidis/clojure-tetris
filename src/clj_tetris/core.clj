@@ -1,13 +1,16 @@
 (ns clj-tetris.core
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
-            [clj-tetris.piece :as piece]))
+            [clj-tetris.piece :as piece]
+            [clj-tetris.piece-kind :as piece-kind]))
 
 (def grid-size [10 20])
 
 (def drop-off-pos
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) (- size-y 3.0)]))
+
+(def next-piece-kinds-lazy-seq (repeatedly (piece-kind/get-next-random-piece-kind)))
 
 (defn pos-not-in-bounds?
   [all-current-block-positions]
@@ -31,7 +34,7 @@
   [initial-blocks next-piece-kinds]
   (view/create-initial-view initial-blocks grid-size next-piece-kinds drop-off-pos))
 
-(def game-view (atom (initial-view [] [t-kind t-kind t-kind t-kind t-kind t-kind]) :validator current-piece-bounds-validator))
+(def game-view (atom (initial-view [] []) :validator current-piece-bounds-validator))
 
 (defn reset-view
   [initial-blocks next-piece-kinds]

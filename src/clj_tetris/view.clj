@@ -115,15 +115,17 @@
         current-view))))
 
 (defn create-initial-view
-  [initial-blocks grid-size initial-next-piece-kinds drop-off-pos]
-  (let [next-piece-kinds (if (empty? initial-next-piece-kinds)
-                           initial-next-piece-kinds
-                           initial-next-piece-kinds)
-        current-piece (piece/create-piece drop-off-pos (first next-piece-kinds))
-        current-piece-blocks (piece/piece-current-blocks current-piece)]
+  [initial-blocks grid-size piece-kinds drop-off-pos]
+  (let [initial-piece-kinds (if (empty? piece-kinds)
+                              (repeatedly (fn [] (piece-kind/get-next-random-piece-kind)))
+                              piece-kinds)
+        current-piece (piece/create-piece drop-off-pos (first initial-piece-kinds))
+        current-piece-blocks (piece/piece-current-blocks current-piece)
+        next-piece-kinds (rest initial-piece-kinds)
+        next-next-piece-kinds (rest next-piece-kinds)]
     (GameView.
       (into initial-blocks current-piece-blocks)
       grid-size
+      current-piece
       (piece/create-piece drop-off-pos (first next-piece-kinds))
-      (piece/create-piece drop-off-pos (first (rest next-piece-kinds)))
-      (rest (rest next-piece-kinds)))))
+      next-next-piece-kinds)))
