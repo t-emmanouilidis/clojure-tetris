@@ -5,17 +5,17 @@
            (java.util TimerTask))
   (:require [clj-tetris.core :as tcore :refer :all]))
 
-(def background-color (Color. 67 67 67))
+(def background-color (Color. 20 20 20))
 
-(def grid-color (Color. 255 255 255))
+(def grid-color (Color. 207 106 76))
 
-(def all-blocks-color (Color. 0 255 0))
+(def all-blocks-color (Color. 131 144 97))
 
-(def current-piece-color (Color. 255 255 0))
+(def current-piece-color (Color. 206 168 105))
 
 (def main-frame (JFrame. "Tetris"))
 
-(def block-size 20)
+(def block-size 25)
 (def block-margin 3)
 (def block-size-plus-margin (+ block-size block-margin))
 
@@ -131,10 +131,10 @@
   ;Setup panel properties
   (.setContentPane main-frame main-panel)
 
-  (.setSize main-panel 700 700)
+  (.setSize main-panel 900 700)
   (.setFocusable main-panel true)
 
-  (.setSize main-frame 700 700)
+  (.setSize main-frame 900 700)
   (.setVisible main-frame true)
 
   (.start
