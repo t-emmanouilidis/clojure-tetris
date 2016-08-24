@@ -5,10 +5,13 @@
            (java.util TimerTask))
   (:require [clj-tetris.core :as tcore :refer :all]))
 
-(def gray (Color. 48 99 99))
-(def silver (Color. 210 255 255))
-(def light-gray (Color. 165 185 185))
-(def bright-gray (Color. 228 242 242))
+(def background-color (Color. 67 67 67))
+
+(def grid-color (Color. 255 255 255))
+
+(def all-blocks-color (Color. 0 255 0))
+
+(def current-piece-color (Color. 255 255 0))
 
 (def main-frame (JFrame. "Tetris"))
 
@@ -25,7 +28,7 @@
 
 (defn draw-empty-grid
   [graphics offset-x [size-x size-y]]
-  (.setColor graphics light-gray)
+  (.setColor graphics grid-color)
   (let [panel-block-positions (for [x (range size-x) y (range size-y)] [x y])]
     (loop [remaining-block-positions panel-block-positions]
       (if (not (empty? remaining-block-positions))
@@ -43,17 +46,17 @@
 
 (defn draw-all-blocks
   [graphics offset-x size-of-grid all-blocks]
-  (.setColor graphics bright-gray)
+  (.setColor graphics all-blocks-color)
   (draw-blocks graphics offset-x size-of-grid all-blocks))
 
 (defn draw-current-piece
   [graphics offset-x size-of-grid current-piece-blocks]
-  (.setColor graphics silver)
+  (.setColor graphics current-piece-color)
   (draw-blocks graphics offset-x size-of-grid current-piece-blocks))
 
 (defn draw-board
   [graphics offset-x size-of-grid all-blocks current-piece-blocks]
-  (.setColor graphics silver)
+  (.setColor graphics current-piece-color)
   (draw-empty-grid graphics offset-x size-of-grid)
   (draw-all-blocks graphics offset-x size-of-grid all-blocks)
   (draw-current-piece graphics offset-x size-of-grid current-piece-blocks))
@@ -75,7 +78,7 @@
     (paint [graphics]
       (let [panel-width (.getWidth (.getSize this))
             panel-height (.getHeight (.getSize this))]
-        (.setColor graphics gray)
+        (.setColor graphics background-color)
         (.fillRect graphics 0 0 panel-width panel-height)
         (onPaint graphics)))))
 
@@ -94,6 +97,7 @@
 (def tetris-up-action
   (proxy [AbstractAction] []
     (actionPerformed [event]
+      (tcore/drop-down)
       (.repaint main-panel))))
 
 (def tetris-left-action

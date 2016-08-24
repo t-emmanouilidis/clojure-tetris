@@ -131,3 +131,32 @@
       current-piece
       (piece/create-piece [2 1] (first next-piece-kinds))
       next-next-piece-kinds)))
+
+(defn current-piece-out-of-bounds?
+  [current-piece-block-positions [grid-size-x grid-size-y]]
+  (some
+    (fn [[pos-x pos-y]] (not (and (>= pos-x 0) (< pos-x grid-size-x) (>= pos-y 0) (< pos-y grid-size-y))))
+    current-piece-block-positions))
+
+(defn block-position-more-than-once?
+  [all-block-positions]
+  (some #(> (last %) 1) (frequencies all-block-positions)))
+
+(defn current-piece-in-illegal-state?
+  [view]
+  (let [all-blocks (:all-blocks view)
+        all-block-positions (map :position all-blocks)
+        grid-size (:grid-size view)
+        current-piece (:current-piece view)
+        current-piece-blocks (piece/piece-current-blocks current-piece)
+        current-piece-block-positions (map :position current-piece-blocks)]
+    (or (current-piece-out-of-bounds? current-piece-block-positions grid-size)
+        (block-position-more-than-once? all-block-positions))))
+
+(defn drop-view
+  [view]
+  (loop [current-view view]
+    (let [moved-down-view (move-view-down current-view)]
+      (if (current-piece-in-illegal-state? moved-down-view)
+        current-view
+        (recur moved-down-view)))))

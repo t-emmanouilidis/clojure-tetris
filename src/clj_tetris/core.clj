@@ -11,22 +11,12 @@
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) (- size-y 3.0)]))
 
-(defn pos-not-in-bounds?
-  [all-current-block-positions]
-  (some
-    (fn [[x y]] (not (and (>= x 0) (< x (first grid-size)) (>= y 0) (< y (last grid-size)))))
-    all-current-block-positions))
-
-(defn block-position-more-than-once?
-  [all-block-positions]
-  (some #(> (last %) 1) (frequencies all-block-positions)))
-
 (defn current-piece-bounds-validator
   [{:keys [all-blocks current-piece]}]
   (let [all-block-positions (mapv :position all-blocks)
         all-current-block-positions (mapv :position (piece/piece-current-blocks current-piece))]
-    (cond (pos-not-in-bounds? all-current-block-positions) (throw (IllegalStateException. "Current piece reached the bounds!"))
-          (block-position-more-than-once? all-block-positions) (throw (IllegalStateException. "There is at least one block that overlaps with another!"))
+    (cond (view/current-piece-out-of-bounds? all-current-block-positions grid-size) (throw (IllegalStateException. "Current piece reached the bounds!"))
+          (view/block-position-more-than-once? all-block-positions) (throw (IllegalStateException. "There is at least one block that overlaps with another!"))
           :else true)))
 
 (defn initial-view
@@ -85,6 +75,16 @@
   (try
     (swap! game-view (fn [current-view] (view/rotate-view-cw current-view)))
     (catch IllegalStateException ise (println "Rotating clock-wise: " (.getMessage ise))))
+  @game-view)
+
+(defn drop-down
+  []
+  (try
+    (swap! game-view
+           (fn
+             [current-view]
+             (view/drop-view current-view)))
+    (catch IllegalStateException ise (println "Dropping: " (.getMessage ise))))
   @game-view)
 
 (defn piece-blocks [piece] (piece/piece-current-blocks piece))

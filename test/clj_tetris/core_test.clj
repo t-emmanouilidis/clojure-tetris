@@ -149,3 +149,14 @@
           (move-down)
           (move-down))
         #{[4 17] [5 17] [4 16] [5 16]}))))
+
+(deftest test-dropping-the-current-piece
+  (testing "Test that the current piece is correctly dropped"
+    (is
+      (correct-block-positions?
+        (do
+          (reset-view [(Block. [4 0] t-kind)
+                       (Block. [4 1] t-kind)]
+                      [o-kind o-kind o-kind o-kind])
+          (drop-down))
+        #{[4 0] [4 1] [4 2] [5 2] [4 3] [5 3]}))))
