@@ -41,7 +41,10 @@
   [graphics offset-x size-of-grid blocks]
   (if (not (empty? blocks))
     (do
-      (.fill graphics (create-rect offset-x size-of-grid (:position (first blocks))))
+      (let [cur-block (first blocks)
+            cur-block-pos (:position cur-block)]
+        (if (< (last cur-block-pos) (last size-of-grid))
+          (.fill graphics (create-rect offset-x size-of-grid cur-block-pos))))
       (draw-blocks graphics offset-x size-of-grid (rest blocks)))))
 
 (defn draw-all-blocks
@@ -147,13 +150,16 @@
       (proxy [AbstractAction] []
         (actionPerformed [event] (.repaint main-panel)))))
 
-  (.scheduleAtFixedRate
-    (java.util.Timer.)
-    (proxy [TimerTask] []
-      (run []
-        (move-down)))
-    0
-    1000))
+  (let [ju-timer (java.util.Timer.)]
+    (.scheduleAtFixedRate
+      ju-timer
+      (proxy [TimerTask] []
+        (run []
+          (move-down)
+          (if (:game-over @tcore/game-view)
+            (.cancel ju-timer))))
+      0
+      1000)))
 
 
 

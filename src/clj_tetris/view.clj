@@ -51,9 +51,10 @@
       (piece/rotate-piece current-piece))))
 
 (defn current-piece-out-of-bounds?
+  "There is no need to check for the upper bound since a piece cannot go up"
   [current-piece-block-positions [grid-size-x grid-size-y]]
   (some
-    (fn [[pos-x pos-y]] (not (and (>= pos-x 0) (< pos-x grid-size-x) (>= pos-y 0) (< pos-y grid-size-y))))
+    (fn [[pos-x pos-y]] (not (and (>= pos-x 0) (< pos-x grid-size-x) (>= pos-y 0))))
     current-piece-block-positions))
 
 (defn block-position-more-than-once?

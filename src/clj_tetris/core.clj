@@ -9,7 +9,7 @@
 
 (def drop-off-pos
   (let [[size-x size-y] grid-size]
-    [(/ size-x 2.0) (- size-y 3.0)]))
+    [(/ size-x 2.0) size-y]))
 
 (defn current-piece-bounds-validator
   [{:keys [all-blocks current-piece]}]
