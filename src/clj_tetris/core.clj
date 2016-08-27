@@ -88,3 +88,5 @@
   @game-view)
 
 (defn piece-blocks [piece] (piece/piece-current-blocks piece))
+
+(defn evaluate-view [view] (if (:game-over view) -1000 0))

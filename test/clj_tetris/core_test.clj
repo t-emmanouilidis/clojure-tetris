@@ -2,8 +2,7 @@
   (:require [clojure.test :refer :all]
             [clj-tetris.core :refer :all]
             [clj-tetris.piece-kind :refer :all]
-            [clj-tetris.view :as view]
-            [clj-tetris.piece :as piece])
+            [clj-tetris.view :as view])
   (:import (clj_tetris.piece Block)))
 
 (def nil-block (Block. [0 0] t-kind))
@@ -21,23 +20,41 @@
 
 (deftest initial-view-test
   (testing "Test that the positions of the blocks for the initial view are the correct ones"
-    (is (correct-block-positions? (reset-view initial-blocks [t-kind t-kind t-kind t-kind]) #{[0 0] [4 17] [5 17] [6 17] [5 18]}))))
+    (is
+      (correct-block-positions?
+        (reset-view initial-blocks [t-kind t-kind t-kind t-kind]) #{[0 0] [4 20] [5 20] [6 20] [5 21]}))))
 
 (deftest left-bound-test
   (testing "Test if left moves are ignored when the piece hits the left wall after five left moves"
     (is (correct-block-positions?
-          (do (reset-view initial-blocks [t-kind t-kind t-kind t-kind]) (move-left) (move-left) (move-left) (move-left) (move-left))
-          #{[0 0] [0 17] [1 17] [2 17] [1 18]}))))
+          (do
+            (reset-view initial-blocks [t-kind t-kind t-kind t-kind])
+            (move-left)
+            (move-left)
+            (move-left)
+            (move-left)
+            (move-left))
+          #{[0 0] [0 20] [1 20] [2 20] [1 21]}))))
 
 (deftest right-bound-test
   (testing "Test if right moves are ignored when the piece hits the right wall after four right moves"
-    (is (correct-block-positions?
-          (do (reset-view initial-blocks [t-kind t-kind t-kind t-kind]) (move-right) (move-right) (move-right))
-          #{[0 0] [7 17] [8 17] [9 17] [8 18]}))))
+    (is
+      (correct-block-positions?
+        (do
+          (reset-view initial-blocks [t-kind t-kind t-kind t-kind])
+          (move-right)
+          (move-right)
+          (move-right))
+        #{[0 0] [7 20] [8 20] [9 20] [8 21]}))))
 
 (deftest check-cw-rotation
   (testing "Test if current-piece is correctly rotated clockwise"
-    (is (correct-block-positions? (do (reset-view initial-blocks [t-kind t-kind t-kind]) (rotate-cw)) #{[0 0] [5 18] [5 17] [5 16] [6 17]}))))
+    (is
+      (correct-block-positions?
+        (do
+          (reset-view initial-blocks [t-kind t-kind t-kind])
+          (rotate-cw))
+        #{[0 0] [5 21] [5 20] [5 19] [6 20]}))))
 
 (deftest check-cw-360-rotation
   (testing "Test if the current piece is equal to the current piece rotated clockwise four times"
@@ -50,30 +67,32 @@
     (is
       (correct-block-positions?
         (do
-          (reset-view [(Block. [3 17] t-kind)] [t-kind t-kind t-kind t-kind])
+          (reset-view [(Block. [3 20] t-kind)] [t-kind t-kind t-kind t-kind])
           (move-left))
-        #{[3 17] [4 17] [5 17] [6 17] [5 18]}))))
+        #{[3 20] [4 20] [5 20] [6 20] [5 21]}))))
 
 (deftest test-moving-down
   (testing "Test that the current piece is moving down correctly"
-    (is (correct-block-positions?
-          (do
-            (reset-view [] [t-kind t-kind t-kind t-kind])
-            (move-down))
-          #{[4 16] [5 16] [6 16] [5 17]}))))
+    (is
+      (correct-block-positions?
+        (do
+          (reset-view [] [t-kind t-kind t-kind t-kind])
+          (move-down))
+        #{[4 19] [5 19] [6 19] [5 20]}))))
 
 (deftest test-new-piece-spawning
   (testing "Test that a new piece spawns when the current piece reached the maximum depth"
     (is
       (correct-block-positions?
         (do
-          (reset-view [(Block. [5 14] t-kind)] [t-kind t-kind t-kind t-kind])
+          (reset-view [(Block. [5 16] t-kind)] [t-kind t-kind t-kind t-kind])
+          (move-down)
           (move-down)
           (move-down)
           (move-down))
-        #{[5 14]
-          [4 15] [5 15] [6 15] [5 16]
-          [4 17] [5 17] [6 17] [5 18]}))))
+        #{[5 16]
+          [4 17] [5 17] [6 17] [5 18]
+          [4 20] [5 20] [6 20] [5 21]}))))
 
 
 (deftest test-clearing-full-rows
@@ -106,8 +125,11 @@
           (move-down)
           (move-down)
           (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
           (move-down))
-        #{[5 0] [4 17] [5 17] [6 17] [5 18]}))))
+        #{[5 0] [4 20] [5 20] [6 20] [5 21]}))))
 
 (deftest test-clearing-two-rows-at-once
   (testing "Test that two rows that are full get correctly cleared when we're moving the current piece down"
@@ -147,8 +169,11 @@
           (move-down)
           (move-down)
           (move-down)
+          (move-down)
+          (move-down)
+          (move-down)
           (move-down))
-        #{[4 17] [5 17] [4 16] [5 16]}))))
+        #{[4 19] [5 19] [4 20] [5 20]}))))
 
 (deftest test-dropping-the-current-piece
   (testing "Test that the current piece is correctly dropped"
@@ -189,3 +214,12 @@
         (drop-down)
         (move-down)
         (:game-over @game-view)))))
+
+(deftest test-view-evaluation
+  (testing "Test that a game-over view takes negative evaluation"
+    (is
+      (let [game-over-view (assoc (view/create-initial-view [] [1 1] [] [1 1]) :game-over true)
+            normal-view (view/create-initial-view [] [1 1] [] [1 1])]
+        (and
+          (= (evaluate-view game-over-view) -1000)
+          (= (evaluate-view normal-view) 0))))))
