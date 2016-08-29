@@ -2,7 +2,8 @@
   (:require [clojure.test :refer :all]
             [clj-tetris.core :refer :all]
             [clj-tetris.piece-kind :refer :all]
-            [clj-tetris.view :as view])
+            [clj-tetris.view :as view]
+            [clj-tetris.agent :as tagent])
   (:import (clj_tetris.piece Block)))
 
 (def nil-block (Block. [0 0] t-kind))
@@ -215,11 +216,19 @@
         (move-down)
         (:game-over @game-view)))))
 
-(deftest test-view-evaluation
-  (testing "Test that a game-over view takes negative evaluation"
+(deftest test-cleared-line-count
+  (testing "Test that cleared-line-count is correctly increased when a line gets cleared"
     (is
-      (let [game-over-view (assoc (view/create-initial-view [] [1 1] [] [1 1]) :game-over true)
-            normal-view (view/create-initial-view [] [1 1] [] [1 1])]
-        (and
-          (= (evaluate-view game-over-view) -1000)
-          (= (evaluate-view normal-view) 0))))))
+      (do
+        (reset-view [(Block. [0 0] o-kind)
+                     (Block. [1 0] o-kind)
+                     (Block. [2 0] o-kind)
+                     (Block. [3 0] o-kind)
+                     (Block. [6 0] o-kind)
+                     (Block. [7 0] o-kind)
+                     (Block. [8 0] o-kind)
+                     (Block. [9 0] o-kind)]
+                    [o-kind o-kind o-kind o-kind])
+        (drop-down)
+        (move-down)
+        (= (:cleared-line-count @game-view) 1)))))

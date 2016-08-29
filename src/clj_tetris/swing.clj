@@ -3,7 +3,8 @@
   (:import [javax.swing AbstractAction KeyStroke JPanel JFrame Timer])
   (:import [java.awt Color Rectangle]
            (java.util TimerTask))
-  (:require [clj-tetris.core :as tcore :refer :all]))
+  (:require [clj-tetris.core :as tcore :refer :all]
+            [clj-tetris.agent :as tagent]))
 
 (def background-color (Color. 20 20 20))
 
@@ -155,6 +156,7 @@
       ju-timer
       (proxy [TimerTask] []
         (run []
+          (apply (tagent/next-move) [])
           (move-down)
           (if (:game-over @tcore/game-view)
             (.cancel ju-timer))))

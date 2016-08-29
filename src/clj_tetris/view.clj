@@ -3,7 +3,7 @@
   (:require [clj-tetris.piece-kind :as piece-kind])
   (:import (clj_tetris.piece Block)))
 
-(defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds game-over])
+(defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds game-over cleared-line-count])
 
 (defn remove-piece-from-view
   [view piece]
@@ -12,25 +12,29 @@
         view-blocks (:all-blocks view)
         blocks-without-current (filter
                                  #(not (contains? current-block-positions (:position %)))
-                                 view-blocks)]
+                                 view-blocks)
+        cleared-line-count (:cleared-line-count view)]
     (GameView.
       blocks-without-current
       grid-size
       nil
       (:next-piece view)
       (:next-piece-kinds view)
-      false)))
+      false
+      cleared-line-count)))
 
 (defn add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
-        blocks-with-moved-piece (into (:all-blocks view) (piece/piece-current-blocks moved-piece))]
+        blocks-with-moved-piece (into (:all-blocks view) (piece/piece-current-blocks moved-piece))
+        cleared-line-count (:cleared-line-count view)]
     (GameView.
       blocks-with-moved-piece
       grid-size
       moved-piece
       (:next-piece view)
       (:next-piece-kinds view)
-      false)))
+      false
+      cleared-line-count)))
 
 (defn- move-view-by
   [current-view delta]
@@ -85,10 +89,18 @@
         current-piece-blocks (piece/piece-current-blocks current-piece-with-correct-pos)
         all-blocks (into current-blocks current-piece-blocks)
         all-block-positions (map :position all-blocks)
-        next-next-piece-kinds (rest next-piece-kinds)]
+        next-next-piece-kinds (rest next-piece-kinds)
+        cleared-line-count (:cleared-line-count current-view)]
     (if (block-position-more-than-once? all-block-positions)
       (assoc current-view :game-over true)
-      (GameView. all-blocks grid-size current-piece-with-correct-pos next-piece next-next-piece-kinds false))))
+      (GameView.
+        all-blocks
+        grid-size
+        current-piece-with-correct-pos
+        next-piece
+        next-next-piece-kinds
+        false
+        cleared-line-count))))
 
 (defn is-row-full?
   [view row-num]
@@ -127,7 +139,8 @@
         (if (is-row-full? current-view current-row)
           (let [current-piece (:current-piece current-view)
                 next-piece (:next-piece current-view)
-                next-piece-kinds (:next-piece-kinds current-view)]
+                next-piece-kinds (:next-piece-kinds current-view)
+                cleared-line-count (:cleared-line-count current-view)]
             (recur
               (GameView.
                 (into
@@ -137,7 +150,8 @@
                 current-piece
                 next-piece
                 next-piece-kinds
-                false)
+                false
+                (inc cleared-line-count))
               (dec current-row)))
           (recur current-view (dec current-row)))
         current-view))))
@@ -157,7 +171,8 @@
       current-piece
       (piece/create-piece [2 1] (first next-piece-kinds))
       next-next-piece-kinds
-      false)))
+      false
+      0)))
 
 (defn drop-view
   [view]
