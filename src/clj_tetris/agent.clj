@@ -59,6 +59,7 @@
            next-moves (rest remaining-moves)
            next-larger-combination (find-best-move view next-moves)
            next-larger-utility (first next-larger-combination)]
+       (println (str "Current utility: " cur-combined-move ". Next utility: " next-larger-combination))
        (if (> cur-utility next-larger-utility)
          [cur-utility cur-move]
          next-larger-combination))
@@ -68,4 +69,8 @@
 
 (defn next-move
   []
-  (last (find-best-move @tcore/game-view)))
+  (let [next-move (find-best-move @tcore/game-view)
+        utility (first next-move)
+        move (last next-move)]
+    (println (str "Move: " move ". Utility of next-move: " utility))
+    move))
