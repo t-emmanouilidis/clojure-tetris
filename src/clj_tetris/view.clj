@@ -181,3 +181,7 @@
       (if (current-piece-in-illegal-state? moved-down-view)
         current-view
         (recur moved-down-view)))))
+
+(defn all-blocks-without-current
+  [view]
+  (:all-blocks (remove-piece-from-view view (:current-piece view))))

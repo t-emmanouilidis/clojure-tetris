@@ -41,5 +41,5 @@
       (let [game-over-view (assoc (view/create-initial-view [] [1 1] [] [1 1]) :game-over true)
             normal-view (view/create-initial-view [] [1 1] [] [1 1])]
         (and
-          (= (tagent/evaluate-view game-over-view) -1000)
-          (= (tagent/evaluate-view normal-view) 0))))))
+          (= (tagent/evaluate-view game-over-view) -1000.0)
+          (= (tagent/evaluate-view normal-view) 0.0))))))

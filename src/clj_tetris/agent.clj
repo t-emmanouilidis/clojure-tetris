@@ -1,10 +1,42 @@
 (ns clj-tetris.agent
   (:require [clj-tetris.view :as view]
-            [clj-tetris.core :as tcore]))
-
-(defn evaluate-view [view] (if (:game-over view) -1000 (:cleared-line-count view)))
+            [clj-tetris.core :as tcore]
+            [clj-tetris.piece-kind :refer :all]))
 
 (def min-utility -1000.0)
+
+(defn get-max-by-group-for-x
+  [groups x]
+  (let [x-positions (mapv #(last %) (get groups x))]
+    (if (empty? x-positions)
+      0
+      (apply max x-positions))))
+
+(defn get-gaps
+  [view]
+  (let [[size-x size-y] (:grid-size view)
+        blocks-wo-current (tcore/blocks-without-current view)
+        grouped (group-by #(first %) (map :position blocks-wo-current))]
+    (for [x (range (- size-x 1))
+          :let [y (+ x 1)]
+          :let [max-x (get-max-by-group-for-x grouped x)]
+          :let [max-y (get-max-by-group-for-x grouped y)]
+          :let [gap (Math/abs (int (- max-x max-y)))]
+          :when (> gap 1)]
+      gap)))
+
+(defn get-gap-penalty
+  [view]
+  (double (apply + (mapv #(* % %) (get-gaps view)))))
+
+
+(defn evaluate-view [view]
+  (double
+    (if (:game-over view)
+      min-utility
+      (- (:cleared-line-count view) (get-gap-penalty view)))))
+
+
 
 (defn possible-move
   [fn]
@@ -32,8 +64,8 @@
          next-larger-combination))
      [min-utility tcore/drop-down])))
 
+
+
 (defn next-move
   []
-  (let [next-move (last (find-best-move @tcore/game-view))]
-    (println "Next move: " next-move)
-    next-move))
+  (last (find-best-move @tcore/game-view)))

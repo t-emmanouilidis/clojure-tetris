@@ -88,3 +88,4 @@
   @game-view)
 
 (defn piece-blocks [piece] (piece/piece-current-blocks piece))
+(defn blocks-without-current [view] (view/all-blocks-without-current view))
