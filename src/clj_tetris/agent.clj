@@ -3,7 +3,9 @@
             [clj-tetris.core :as tcore]
             [clj-tetris.piece-kind :refer :all]))
 
+
 (def min-utility -1000.0)
+
 
 (defn get-max-by-group-for-x
   [groups x]
@@ -11,6 +13,7 @@
     (if (empty? x-positions)
       0
       (apply max x-positions))))
+
 
 (defn get-gaps
   [view]
@@ -25,6 +28,7 @@
           :when (> gap 1)]
       gap)))
 
+
 (defn get-gap-penalty
   [view]
   (double (apply + (mapv #(* % %) (get-gaps view)))))
@@ -37,40 +41,33 @@
       (- (:cleared-line-count view) (get-gap-penalty view)))))
 
 
-
 (defn possible-move
   [fn]
   (comp view/clear-full-rows fn))
 
-(def possible-moves [[tcore/drop-down (possible-move view/drop-view)]
-                     [tcore/move-left (possible-move view/move-view-left)]
+
+(def possible-moves [[tcore/drop-down (possible-move view/move-view-down)]
                      [tcore/move-right (possible-move view/move-view-right)]
+                     [tcore/drop-down (possible-move view/drop-view)]
                      [tcore/rotate-cw (possible-move view/rotate-view-cw)]
-                     [tcore/drop-down (possible-move view/drop-view)]])
+                     [tcore/move-left (possible-move view/move-view-left)]])
 
-(defn find-best-move
-  ([view] (find-best-move view possible-moves))
-  ([view remaining-moves]
-   (if (not (empty? remaining-moves))
-     (let [cur-combined-move (first remaining-moves)
-           cur-move (first cur-combined-move)
-           move-to-apply (last cur-combined-move)
-           cur-utility (evaluate-view (move-to-apply view))
-           next-moves (rest remaining-moves)
-           next-larger-combination (find-best-move view next-moves)
-           next-larger-utility (first next-larger-combination)]
-       (println (str "Current utility: " cur-combined-move ". Next utility: " next-larger-combination))
-       (if (> cur-utility next-larger-utility)
-         [cur-utility cur-move]
-         next-larger-combination))
-     [min-utility tcore/drop-down])))
 
+(defn get-utility-per-move
+  [view]
+  (map
+    (fn [possible-move]
+      (let [core-move (first possible-move)
+            move-to-apply (last possible-move)
+            resulted-view (apply move-to-apply [view])
+            utility (evaluate-view resulted-view)]
+        {:core-move core-move :utility utility}))
+    possible-moves))
+
+
+(defn find-best-move [view] (:core-move (apply max-key :utility (get-utility-per-move view))))
 
 
 (defn next-move
   []
-  (let [next-move (find-best-move @tcore/game-view)
-        utility (first next-move)
-        move (last next-move)]
-    (println (str "Move: " move ". Utility of next-move: " utility))
-    move))
+  (find-best-move @tcore/game-view))
