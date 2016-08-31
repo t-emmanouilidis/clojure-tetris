@@ -9,48 +9,43 @@
 
 (defn get-max-by-group-for-x
   [groups x]
-  (let [x-positions (mapv #(last %) (get groups x))]
+  (let [x-positions (mapv #(inc (last %)) (get groups x))]
     (if (empty? x-positions)
       0
       (apply max x-positions))))
 
 
-(defn get-gaps
+(defn get-heights
   [view]
   (let [[size-x size-y] (:grid-size view)
-        blocks-wo-current (tcore/blocks-without-current view)
-        grouped (group-by #(first %) (map :position blocks-wo-current))]
-    (for [x (range (- size-x 1))
-          :let [y (+ x 1)]
-          :let [max-x (get-max-by-group-for-x grouped x)]
-          :let [max-y (get-max-by-group-for-x grouped y)]
-          :let [gap (Math/abs (int (- max-x max-y)))]
-          :when (> gap 1)]
-      gap)))
+        grouped (group-by #(first %) (map :position (:all-blocks view)))]
+    (for [x (range size-x)]
+      (get-max-by-group-for-x grouped x))))
 
 
 (defn get-gap-penalty
   [view]
-  (double (apply + (mapv #(* % %) (get-gaps view)))))
+  (double (apply + (mapv #(* % %) (get-heights view)))))
 
 
 (defn evaluate-view [view]
   (double
     (if (:game-over view)
       min-utility
-      (- (:cleared-line-count view) (get-gap-penalty view)))))
+      (- (:cleared-line-count view) (/ (get-gap-penalty view) 10.0)))))
 
 
 (defn possible-move
+  "doing a drop before clearing rows does not actually changes the current piece which is removed in the next step"
   [fn]
-  (comp view/clear-full-rows fn))
+  (comp view/clear-full-rows view/drop-view fn))
 
 
-(def possible-moves [[tcore/drop-down (possible-move view/move-view-down)]
-                     [tcore/move-right (possible-move view/move-view-right)]
-                     [tcore/drop-down (possible-move view/drop-view)]
-                     [tcore/rotate-cw (possible-move view/rotate-view-cw)]
-                     [tcore/move-left (possible-move view/move-view-left)]])
+(def possible-moves
+  [[tcore/move-down (possible-move view/move-view-down)]
+   [tcore/move-right (possible-move view/move-view-right)]
+   [tcore/rotate-cw (possible-move view/rotate-view-cw)]
+   [tcore/move-left (possible-move view/move-view-left)]])
 
 
 (defn get-utility-per-move
