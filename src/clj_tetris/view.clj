@@ -185,3 +185,18 @@
 (defn all-blocks-without-current
   [view]
   (:all-blocks (remove-piece-from-view view (:current-piece view))))
+
+(defn allowed-number-of-moves
+  ([view fn] (allowed-number-of-moves view fn 0))
+  ([view fn n]
+   (let [resulted-view (apply fn [view])]
+     (if (current-piece-in-illegal-state? resulted-view)
+       n
+       (allowed-number-of-moves resulted-view fn (inc n))))))
+
+(defn sides-limits
+  [view]
+  {:left-limit  (allowed-number-of-moves view move-view-left)
+   :right-limit (allowed-number-of-moves view move-view-right)})
+
+
