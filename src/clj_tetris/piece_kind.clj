@@ -23,13 +23,12 @@
       :else z-kind)))
 
 (defn orientation
-  [piece]
-  (let [piece-kind (:kind piece)]
-    (cond
-      (= piece-kind i-kind) 2
-      (= piece-kind j-kind) 4
-      (= piece-kind l-kind) 4
-      (= piece-kind o-kind) 1
-      (= piece-kind s-kind) 2
-      (= piece-kind t-kind) 4
-      (= piece-kind z-kind) 2)))
+  [piece-kind]
+  (cond
+    (= piece-kind i-kind) 2
+    (= piece-kind j-kind) 4
+    (= piece-kind l-kind) 4
+    (= piece-kind o-kind) 1
+    (= piece-kind s-kind) 2
+    (= piece-kind t-kind) 4
+    (= piece-kind z-kind) 2))

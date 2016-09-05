@@ -194,9 +194,21 @@
        n
        (allowed-number-of-moves resulted-view fn (inc n))))))
 
-(defn sides-limits
+(defn side-limits
   [view]
   {:left-limit  (allowed-number-of-moves view move-view-left)
    :right-limit (allowed-number-of-moves view move-view-right)})
+
+(defn action-seqs
+  [view]
+  (let [current-piece (:current-piece view)
+        current-piece-kind (:kind current-piece)
+        orientation-actions (map #(repeat % rotate-view-cw) (range (piece-kind/orientation current-piece-kind)))
+        current-side-limits (side-limits view)
+        move-left-actions (map #(repeat % move-view-left) (range 1 (inc (:left-limit current-side-limits))))
+        move-right-actions (map #(repeat % move-view-right) (range 1 (inc (:right-limit current-side-limits))))]
+    (for [orientation-action orientation-actions
+          move-action (concat move-left-actions move-right-actions)]
+      (concat orientation-action move-action))))
 
 
