@@ -43,3 +43,9 @@
         (and
           (= (tagent/evaluate-view game-over-view) -1000.0)
           (= (tagent/evaluate-view normal-view) -0.4))))))
+
+(deftest test-action-seqs-for-initial-view
+  (testing "Test that an initial view with a t-kind current piece has 29 possible action sequences"
+    (is
+      (count (tagent/action-seqs (reset-view [] [t-kind t-kind t-kind])))
+      29)))
