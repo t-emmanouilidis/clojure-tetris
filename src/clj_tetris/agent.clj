@@ -77,7 +77,10 @@
         right-actions (translation-actions right-limit tcore/move-right view/move-view-right)]
     (conj (for [orientation-action orientation-actions
                 move-action (concat left-actions right-actions)]
-            (concat orientation-action move-action))
+            (concat
+              [{:core-move tcore/drop-down :view-move view/drop-view}]
+              orientation-action
+              move-action))
           (list))))
 
 
