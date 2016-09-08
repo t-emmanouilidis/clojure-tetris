@@ -156,8 +156,9 @@
       ju-timer
       (proxy [TimerTask] []
         (run []
-          ((tagent/next-move))
-          (move-down)
+          (for [core-move (tagent/next-move)]
+            (core-move))
+          (apply move-down [])
           (if (:game-over @tcore/game-view)
             (.cancel ju-timer))))
       0

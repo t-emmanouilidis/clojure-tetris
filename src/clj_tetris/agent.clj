@@ -51,18 +51,18 @@
    :right-limit (allowed-number-of-moves view view/move-view-right)})
 
 
-(defn- orientation-actions
+(defn orientation-actions
   [current-piece-kind]
   (map
     #(repeat % {:core-move tcore/rotate-cw :view-move view/rotate-view-cw})
     (range (piece-kind/orientation current-piece-kind))))
 
 
-(defn- translation-actions
-  [side-limits core-move view-move]
+(defn translation-actions
+  [limit core-move view-move]
   (map
     #(repeat % {:core-move core-move :view-move view-move})
-    (range 1 (inc (:left-limit side-limits)))))
+    (range 1 (inc limit))))
 
 
 (defn action-seqs
@@ -71,8 +71,10 @@
         current-piece-kind (:kind current-piece)
         orientation-actions (orientation-actions current-piece-kind)
         side-limits (side-limits view)
-        left-actions (translation-actions side-limits tcore/move-left view/move-view-left)
-        right-actions (translation-actions side-limits tcore/move-right view/move-view-right)]
+        left-limit (:left-limit side-limits)
+        right-limit (:right-limit side-limits)
+        left-actions (translation-actions left-limit tcore/move-left view/move-view-left)
+        right-actions (translation-actions right-limit tcore/move-right view/move-view-right)]
     (conj (for [orientation-action orientation-actions
                 move-action (concat left-actions right-actions)]
             (concat orientation-action move-action))
@@ -84,12 +86,13 @@
   [fns]
   (apply comp (concat [view/clear-full-rows view/drop-view] fns)))
 
+
 (defn get-utility-per-move
   [view]
   (map
     (fn [action-seq]
-      (let [core-moves (map first action-seq)
-            view-moves (map second action-seq)
+      (let [core-moves (map :core-move action-seq)
+            view-moves (map :view-move action-seq)
             complemented-move (apply complement-move [view-moves])
             resulted-view (apply complemented-move [view])
             utility (evaluate-view resulted-view)]
@@ -97,10 +100,8 @@
     (action-seqs view)))
 
 
-(defn find-best-move [view] (:core-move (apply max-key :utility (get-utility-per-move view))))
+(defn find-best-move [view] (:core-moves (apply max-key :utility (get-utility-per-move view))))
 
 
-(defn next-move
-  []
-  (find-best-move @tcore/game-view))
+(defn next-move [] (find-best-move @tcore/game-view))
 
