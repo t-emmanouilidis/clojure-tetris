@@ -7,7 +7,7 @@
   (:import (clj_tetris.piece Block)))
 
 (deftest test-correct-move-for-clearing-rows
-  (testing "Test that the agent correctly selects to drop a piece if a line is to be cleared"
+  (testing "Test that the agent correctly does not rotate or move the current piece"
     (is
       (do
         (reset-view [(Block. [0 0] t-kind)
@@ -18,7 +18,7 @@
                      (Block. [8 0] t-kind)
                      (Block. [9 0] t-kind)]
                     [t-kind o-kind o-kind o-kind o-kind o-kind])
-        (= move-down (tagent/next-move))))))
+        (empty? (tagent/next-move))))))
 
 (deftest test-penalty-for-heights
   (testing "Test the heights calculated at a specific point for a view are correct (current piece is taken into account)"
