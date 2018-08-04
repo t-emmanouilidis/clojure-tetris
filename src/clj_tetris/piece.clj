@@ -9,9 +9,9 @@
 
 (defn piece-current-blocks
   [piece]
-  (let [piece-posisition (:position piece)
-        pos-x (first piece-posisition)
-        pos-y (last piece-posisition)]
+  (let [piece-position (:position piece)
+        pos-x (first piece-position)
+        pos-y (last piece-position)]
     (map
       (fn
         [[local-pos-x local-pos-y]]

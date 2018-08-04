@@ -49,3 +49,4 @@
     (is
       (count (tagent/action-seqs (reset-view [] [t-kind t-kind t-kind])))
       29)))
+

@@ -1,8 +1,7 @@
 (ns clj-tetris.core
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
-            [clj-tetris.piece :as piece]
-            [clj-tetris.piece-kind]))
+            [clj-tetris.piece :as piece]))
 
 (def grid-size [10 20])
 (def mini-grid-size [4 4])

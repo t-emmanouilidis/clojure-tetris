@@ -4,17 +4,12 @@
             [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece-kind :as piece-kind]))
 
-
 (def min-utility -1000.0)
-
 
 (defn get-max-by-group-for-x
   [groups x]
   (let [x-positions (mapv #(inc (last %)) (get groups x))]
-    (if (empty? x-positions)
-      0
-      (apply max x-positions))))
-
+    (if (empty? x-positions) 0 (apply max x-positions))))
 
 (defn get-heights
   [view]
@@ -22,7 +17,6 @@
         grouped (group-by #(first %) (map :position (:all-blocks view)))]
     (for [x (range size-x)]
       (get-max-by-group-for-x grouped x))))
-
 
 (defn get-gap-penalty
   [view]

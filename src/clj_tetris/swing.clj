@@ -1,10 +1,10 @@
 (ns clj-tetris.swing
   (:gen-class)
-  (:import [javax.swing AbstractAction KeyStroke JPanel JFrame Timer])
-  (:import [java.awt Color Rectangle]
-           (java.util TimerTask))
   (:require [clj-tetris.core :as tcore :refer :all]
-            [clj-tetris.agent :as tagent]))
+            [clj-tetris.agent :as tagent])
+  (:import [javax.swing AbstractAction KeyStroke JPanel JFrame Timer]
+           [java.awt Color Rectangle]
+           [java.util TimerTask]))
 
 (def background-color (Color. 20 20 20))
 
@@ -120,8 +120,7 @@
       (tcore/move-right)
       (.repaint main-panel))))
 
-(defn -main
-  [& args]
+(defn -main [& args]
 
   ;Example key binding
   (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "SPACE") "tetrisSpaceAction")
@@ -146,22 +145,15 @@
   (.setVisible main-frame true)
 
   (.start
-    (Timer.
-      50
-      (proxy [AbstractAction] []
-        (actionPerformed [event] (.repaint main-panel)))))
+    (Timer. 50 (proxy [AbstractAction] []
+                 (actionPerformed [event] (.repaint main-panel)))))
 
-  (let [ju-timer (java.util.Timer.)]
+  (let [agent-timer (java.util.Timer.)]
     (.scheduleAtFixedRate
-      ju-timer
+      agent-timer
       (proxy [TimerTask] []
         (run []
           (map apply (tagent/next-move))
           (apply move-down [])
           (if (:game-over @tcore/game-view)
-            (.cancel ju-timer))))
-      0
-      1000)))
-
-
-
+            (.cancel agent-timer)))) 0 1000)))

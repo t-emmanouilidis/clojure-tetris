@@ -1,6 +1,7 @@
 (ns clj-tetris.view
   (:require [clj-tetris.piece :as piece]
-            [clj-tetris.piece-kind :as piece-kind])
+            [clj-tetris.piece-kind :as piece-kind]
+            [clj-tetris.block-utils :as block-utils])
   (:import (clj_tetris.piece Block)))
 
 (defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds game-over cleared-line-count])
@@ -110,27 +111,20 @@
                 (map :position (:all-blocks view))))
        size-x)))
 
-(defn blocks-above-row
-  [view row-num]
-  (let [all-blocks (:all-blocks view)]
-    (filterv
-      #(> (last (:position %)) row-num)
-      all-blocks)))
+(defn- blocks-from-row [all-blocks row-num compare-func]
+  (filterv #(compare-func (last (:position %)) row-num) all-blocks))
 
-(defn blocks-below-row
-  [view row-num]
-  (let [all-blocks (:all-blocks view)]
-    (filterv
-      #(< (last (:position %)) row-num)
-      all-blocks)))
+(defn blocks-above-row [all-blocks row-num]
+  (blocks-from-row all-blocks row-num >))
 
-(defn move-upper-blocks-down
-  [view row-num]
-  (let [upper-blocks (blocks-above-row view row-num)]
-    (mapv #(Block. [(first (:position %)) (dec (last (:position %)))] (:piece-kind %)) upper-blocks)))
+(defn blocks-below-row [all-blocks row-num]
+  (blocks-from-row all-blocks row-num <))
 
-(defn clear-full-rows
-  [view]
+(defn move-upper-blocks-down [view row-num]
+  (let [upper-blocks (blocks-above-row (:all-blocks view) row-num)]
+    (block-utils/move-blocks-down upper-blocks)))
+
+(defn clear-full-rows [view]
   (let [grid-size (:grid-size view)
         size-y (last grid-size)]
     (loop [current-view view
@@ -144,7 +138,7 @@
             (recur
               (GameView.
                 (into
-                  (blocks-below-row current-view current-row)
+                  (blocks-below-row (:all-blocks current-view) current-row)
                   (move-upper-blocks-down current-view current-row))
                 grid-size
                 current-piece
