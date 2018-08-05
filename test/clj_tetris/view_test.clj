@@ -3,7 +3,7 @@
             [clj-tetris.view :as view]
             [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece])
-  (:import (clj_tetris.piece Block)))
+  (:import (clj_tetris.block Block)))
 
 (def blocks [(Block. [0.0 1.0] t-kind)
              (Block. [1.0 2.0] i-kind)

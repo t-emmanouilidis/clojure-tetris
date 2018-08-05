@@ -4,7 +4,7 @@
             [clj-tetris.piece-kind :refer :all]
             [clj-tetris.view :as view]
             [clj-tetris.agent :as tagent])
-  (:import (clj-tetris.piece Block)))
+  (:import (clj_tetris.piece Block)))
 
 (def nil-block (Block. [0 0] t-kind))
 (def initial-blocks [nil-block])

@@ -1,15 +1,14 @@
 (ns clj-tetris.view
   (:require [clj-tetris.piece :as piece]
             [clj-tetris.piece-kind :as piece-kind]
-            [clj-tetris.block-utils :as block-utils])
-  (:import (clj_tetris.piece Block)))
+            [clj-tetris.block :as block]))
 
 (defrecord GameView [all-blocks grid-size current-piece next-piece next-piece-kinds game-over cleared-line-count])
 
 (defn remove-piece-from-view
   [view piece]
   (let [grid-size (:grid-size view)
-        current-block-positions (into #{} (map :position (piece/piece-current-blocks piece)))
+        current-block-positions (into #{} (map :position (block/blocks-from-piece piece)))
         view-blocks (:all-blocks view)
         blocks-without-current (filter
                                  #(not (contains? current-block-positions (:position %)))
@@ -26,7 +25,7 @@
 
 (defn add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
-        blocks-with-moved-piece (into (:all-blocks view) (piece/piece-current-blocks moved-piece))
+        blocks-with-moved-piece (into (:all-blocks view) (block/blocks-from-piece moved-piece))
         cleared-line-count (:cleared-line-count view)]
     (GameView.
       blocks-with-moved-piece
@@ -72,7 +71,7 @@
         all-block-positions (map :position all-blocks)
         grid-size (:grid-size view)
         current-piece (:current-piece view)
-        current-piece-blocks (piece/piece-current-blocks current-piece)
+        current-piece-blocks (block/blocks-from-piece current-piece)
         current-piece-block-positions (map :position current-piece-blocks)]
     (or (current-piece-out-of-bounds? current-piece-block-positions grid-size)
         (block-position-more-than-once? all-block-positions))))
@@ -87,7 +86,7 @@
         next-piece-kind (first next-piece-kinds)
         next-piece (piece/create-piece [2 1] next-piece-kind)
         current-blocks (:all-blocks current-view)
-        current-piece-blocks (piece/piece-current-blocks current-piece-with-correct-pos)
+        current-piece-blocks (block/blocks-from-piece current-piece-with-correct-pos)
         all-blocks (into current-blocks current-piece-blocks)
         all-block-positions (map :position all-blocks)
         next-next-piece-kinds (rest next-piece-kinds)
@@ -122,7 +121,7 @@
 
 (defn move-upper-blocks-down [view row-num]
   (let [upper-blocks (blocks-above-row (:all-blocks view) row-num)]
-    (block-utils/move-blocks-down upper-blocks)))
+    (block/move-blocks-down upper-blocks)))
 
 (defn clear-full-rows [view]
   (let [grid-size (:grid-size view)
@@ -156,7 +155,7 @@
                               (repeatedly (fn [] (piece-kind/get-next-random-piece-kind)))
                               piece-kinds)
         current-piece (piece/create-piece drop-off-pos (first initial-piece-kinds))
-        current-piece-blocks (piece/piece-current-blocks current-piece)
+        current-piece-blocks (block/blocks-from-piece current-piece)
         next-piece-kinds (rest initial-piece-kinds)
         next-next-piece-kinds (rest next-piece-kinds)]
     (GameView.

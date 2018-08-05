@@ -3,26 +3,9 @@
 
 (def standard-rotation-theta (/ (- Math/PI) 2.0))
 
-(defrecord Block [position piece-kind])
-
 (defrecord Piece [position kind local-points])
 
-(defn piece-current-blocks
-  [piece]
-  (let [piece-position (:position piece)
-        pos-x (first piece-position)
-        pos-y (last piece-position)]
-    (map
-      (fn
-        [[local-pos-x local-pos-y]]
-        (Block.
-          [(int (Math/floor (+ local-pos-x pos-x)))
-           (int (Math/floor (+ local-pos-y pos-y)))]
-          (:kind piece)))
-      (:local-points piece))))
-
-(defn move-piece
-  [piece delta]
+(defn move-piece [piece delta]
   (let [piece-position (:position piece)
         old-pos-x (first piece-position)
         old-pos-y (last piece-position)
@@ -30,9 +13,7 @@
                       (+ old-pos-y (last delta))]]
     (Piece. new-position (:kind piece) (:local-points piece))))
 
-
-(defn rotate-piece
-  [piece]
+(defn rotate-piece [piece]
   (let [theta standard-rotation-theta
         cos-theta (Math/cos theta)
         sin-theta (Math/sin theta)
@@ -50,9 +31,7 @@
                    (+ (* sin-theta x) (* cos-theta y))]))
               local-points))))
 
-
-(defn create-piece
-  [position piece-kind]
+(defn create-piece [position piece-kind]
   (cond
     (= i-kind piece-kind) (Piece. position piece-kind [[-1.5 0.0] [-0.5 0.0] [0.5 0.0] [1.5 0.0]])
     (= j-kind piece-kind) (Piece. position piece-kind [[-1.0 0.5] [0.0 0.5] [1.0 0.5] [1.0 -0.5]])

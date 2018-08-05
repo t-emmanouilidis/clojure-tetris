@@ -1,7 +1,8 @@
 (ns clj-tetris.core
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
-            [clj-tetris.piece :as piece]))
+            [clj-tetris.piece]
+            [clj-tetris.block :as block]))
 
 (def grid-size [10 20])
 (def mini-grid-size [4 4])
@@ -10,10 +11,12 @@
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) size-y]))
 
+(defn piece-blocks [piece] (block/blocks-from-piece piece))
+
 (defn current-piece-bounds-validator
   [{:keys [all-blocks current-piece]}]
   (let [all-block-positions (mapv :position all-blocks)
-        all-current-block-positions (mapv :position (piece/piece-current-blocks current-piece))]
+        all-current-block-positions (mapv :position (piece-blocks current-piece))]
     (cond (view/current-piece-out-of-bounds? all-current-block-positions grid-size) (throw (IllegalStateException. "Current piece reached the bounds!"))
           (view/block-position-more-than-once? all-block-positions) (throw (IllegalStateException. "There is at least one block that overlaps with another!"))
           :else true)))
@@ -86,5 +89,4 @@
     (catch IllegalStateException ise (println "Dropping: " (.getMessage ise))))
   @game-view)
 
-(defn piece-blocks [piece] (piece/piece-current-blocks piece))
 (defn blocks-without-current [view] (view/all-blocks-without-current view))
