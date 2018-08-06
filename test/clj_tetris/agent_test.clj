@@ -65,3 +65,7 @@
 (deftest test-get-heights
   (testing "Should be able to find the maximum heights for a collection of positions on all X positions"
     (is (= (tagent/get-heights test-blocks 4) [0 5.0 3.0 4.0]))))
+
+(deftest test-get-penalty
+  (testing "Should be able to calculate the penalty for a given set of blocks"
+    (is (= (tagent/get-gap-penalty test-blocks 4) 50.0))))

@@ -25,14 +25,15 @@
     (mapv #(get-max-height-from-positions (get position-groups (double %))) (range grid-size-x))))
 
 (defn get-gap-penalty
-  [view]
-  (double (apply + (mapv #(* % %) (get-heights (:all-blocks view) (first (:grid-size view)))))))
+  "1) we get the heights of each column in the grid, 2) we multiply each height with itself, 3) we sum all the squares"
+  [blocks grid-size-x]
+  (double (apply + (mapv #(* % %) (get-heights blocks grid-size-x)))))
 
 (defn evaluate-view [view]
   (double
     (if (:game-over view)
       min-utility
-      (- (:cleared-line-count view) (/ (get-gap-penalty view) 10.0)))))
+      (- (:cleared-line-count view) (/ (get-gap-penalty (:all-blocks view) (first (:grid-size view))) 10.0)))))
 
 
 (defn allowed-number-of-moves

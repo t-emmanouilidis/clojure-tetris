@@ -103,12 +103,12 @@
         cleared-line-count))))
 
 (defn is-row-full?
-  [view row-num]
-  (let [size-x (first (:grid-size view))]
-    (= (count (filter
-                #(= (last %) row-num)
-                (map :position (:all-blocks view))))
-       size-x)))
+  "Checks if a row in the view is full or not"
+  [blocks grid-size-x row-num]
+  (= (count (filter
+              #(= (last %) row-num)
+              (map :position blocks)))
+     grid-size-x))
 
 (defn- blocks-from-row [all-blocks row-num compare-func]
   (filterv #(compare-func (last (:position %)) row-num) all-blocks))
@@ -129,7 +129,7 @@
     (loop [current-view view
            current-row (dec size-y)]
       (if (>= current-row 0)
-        (if (is-row-full? current-view current-row)
+        (if (is-row-full? (:all-blocks current-view) (:grid-size view) current-row)
           (let [current-piece (:current-piece current-view)
                 next-piece (:next-piece current-view)
                 next-piece-kinds (:next-piece-kinds current-view)
