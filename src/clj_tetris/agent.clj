@@ -6,22 +6,27 @@
 
 (def min-utility -1000.0)
 
-(defn get-max-by-group-for-x
-  [groups x]
-  (let [x-positions (mapv #(inc (last %)) (get groups x))]
-    (if (empty? x-positions) 0 (apply max x-positions))))
+(defn get-max-height-from-positions
+  "Finds the maximum height from a collection of positions e.g. [[1.0 0.0][2.0 2.2]] for a specific X on axis"
+  [positions]
+  (let [heights (mapv #(inc (last %)) positions)]
+    (if (empty? heights) 0 (apply max heights))))
+
+(defn group-blocks-by-x-axis
+  "Groups block positions by their position on the X axis"
+  [blocks]
+  (group-by #(first %) (mapv :position blocks)))
 
 (defn get-heights
-  [view]
-  (let [[size-x size-y] (:grid-size view)
-        grouped (group-by #(first %) (map :position (:all-blocks view)))]
-    (for [x (range size-x)]
-      (get-max-by-group-for-x grouped x))))
+  "Returns a collection of the maximum heights for each position
+  on the X axis of each of the given for each one of the given blocks"
+  [blocks grid-size-x]
+  (let [position-groups (group-blocks-by-x-axis blocks)]
+    (mapv #(get-max-height-from-positions (get position-groups (double %))) (range grid-size-x))))
 
 (defn get-gap-penalty
   [view]
-  (double (apply + (mapv #(* % %) (get-heights view)))))
-
+  (double (apply + (mapv #(* % %) (get-heights (:all-blocks view) (first (:grid-size view)))))))
 
 (defn evaluate-view [view]
   (double
