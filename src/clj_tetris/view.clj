@@ -54,27 +54,34 @@
       (remove-piece-from-view current-view current-piece)
       (piece/rotate-piece current-piece))))
 
-(defn current-piece-out-of-bounds?
-  "There is no need to check for the upper bound since a piece cannot go up"
-  [current-piece-block-positions [grid-size-x grid-size-y]]
-  (some
-    (fn [[pos-x pos-y]] (not (and (>= pos-x 0) (< pos-x grid-size-x) (>= pos-y 0))))
-    current-piece-block-positions))
+(defn position-out-of-bounds?
+  "Checks if the given position is out of grid bounds"
+  [position grid-size-x]
+  (let [[pos-x pos-y] position]
+    (or (< pos-x 0) (>= pos-x grid-size-x) (< pos-y 0))))
 
-(defn block-position-more-than-once?
-  [all-block-positions]
-  (some #(> (last %) 1) (frequencies all-block-positions)))
+(defn positions-out-of-bounds?
+  "Checks if the position of any block of the given piece is out of bounds.
+  There is no need to check for the upper bound since a piece cannot go up"
+  [positions right-limit]
+  (some #(position-out-of-bounds? % right-limit) positions))
+
+(defn positions-overlap?
+  "Checks if a block position is encountered more than once which means that two blocks overlap"
+  [positions]
+  (some #(> (last %) 1) (frequencies positions)))
 
 (defn current-piece-in-illegal-state?
+  "Checks if the current piece moved to an illegal position,
+  either outside of the grid or on top of an existing block"
   [view]
   (let [all-blocks (:all-blocks view)
-        all-block-positions (map :position all-blocks)
-        grid-size (:grid-size view)
+        grid-size-x (first (:grid-size view))
         current-piece (:current-piece view)
         current-piece-blocks (block/blocks-from-piece current-piece)
         current-piece-block-positions (map :position current-piece-blocks)]
-    (or (current-piece-out-of-bounds? current-piece-block-positions grid-size)
-        (block-position-more-than-once? all-block-positions))))
+    (or (positions-out-of-bounds? current-piece-block-positions grid-size-x)
+        (positions-overlap? (map :position all-blocks)))))
 
 (defn spawn-new-piece
   [current-view drop-off-pos]
@@ -91,7 +98,7 @@
         all-block-positions (map :position all-blocks)
         next-next-piece-kinds (rest next-piece-kinds)
         cleared-line-count (:cleared-line-count current-view)]
-    (if (block-position-more-than-once? all-block-positions)
+    (if (positions-overlap? all-block-positions)
       (assoc current-view :game-over true)
       (GameView.
         all-blocks

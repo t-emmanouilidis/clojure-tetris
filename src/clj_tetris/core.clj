@@ -17,8 +17,8 @@
   [{:keys [all-blocks current-piece]}]
   (let [all-block-positions (mapv :position all-blocks)
         all-current-block-positions (mapv :position (piece-blocks current-piece))]
-    (cond (view/current-piece-out-of-bounds? all-current-block-positions grid-size) (throw (IllegalStateException. "Current piece reached the bounds!"))
-          (view/block-position-more-than-once? all-block-positions) (throw (IllegalStateException. "There is at least one block that overlaps with another!"))
+    (cond (view/positions-out-of-bounds? all-current-block-positions (first grid-size)) (throw (IllegalStateException. "Current piece reached the bounds!"))
+          (view/positions-overlap? all-block-positions) (throw (IllegalStateException. "There is at least one block that overlaps with another!"))
           :else true)))
 
 (defn initial-view

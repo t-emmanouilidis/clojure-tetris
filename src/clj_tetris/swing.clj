@@ -6,13 +6,13 @@
            [java.awt Color Rectangle]
            [java.util TimerTask]))
 
-(def background-color (Color. 20 20 20))
+(def background-color (Color. 255 255 255))
 
-(def grid-color (Color. 207 106 76))
+(def grid-color (Color. 200 200 200))
 
-(def all-blocks-color (Color. 131 144 97))
+(def all-blocks-color (Color. 64 129 174))
 
-(def current-piece-color (Color. 206 168 105))
+(def current-piece-color (Color. 161 203 232))
 
 (def main-frame (JFrame. "Tetris"))
 
