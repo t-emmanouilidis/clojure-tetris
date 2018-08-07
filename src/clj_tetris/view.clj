@@ -103,10 +103,11 @@
         cleared-line-count))))
 
 (defn is-row-full?
-  "Checks if a row in the view is full or not"
+  "Checks if a row in the view is full or not.
+  Type independent check here because row-num is integer"
   [blocks grid-size-x row-num]
   (= (count (filter
-              #(= (last %) row-num)
+              #(== (last %) row-num)
               (map :position blocks)))
      grid-size-x))
 
@@ -119,8 +120,8 @@
 (defn blocks-below-row [all-blocks row-num]
   (blocks-from-row all-blocks row-num <))
 
-(defn move-upper-blocks-down [view row-num]
-  (let [upper-blocks (blocks-above-row (:all-blocks view) row-num)]
+(defn move-upper-blocks-down [blocks row-num]
+  (let [upper-blocks (blocks-above-row blocks row-num)]
     (block/move-blocks-down upper-blocks)))
 
 (defn clear-full-rows [view]
@@ -129,16 +130,17 @@
     (loop [current-view view
            current-row (dec size-y)]
       (if (>= current-row 0)
-        (if (is-row-full? (:all-blocks current-view) (:grid-size view) current-row)
+        (if (is-row-full? (:all-blocks current-view) (first (:grid-size current-view)) current-row)
           (let [current-piece (:current-piece current-view)
                 next-piece (:next-piece current-view)
                 next-piece-kinds (:next-piece-kinds current-view)
-                cleared-line-count (:cleared-line-count current-view)]
+                cleared-line-count (:cleared-line-count current-view)
+                all-blocks (:all-blocks current-view)]
             (recur
               (GameView.
                 (into
-                  (blocks-below-row (:all-blocks current-view) current-row)
-                  (move-upper-blocks-down current-view current-row))
+                  (blocks-below-row all-blocks current-row)
+                  (move-upper-blocks-down all-blocks current-row))
                 grid-size
                 current-piece
                 next-piece

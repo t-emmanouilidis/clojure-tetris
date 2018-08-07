@@ -15,7 +15,7 @@
 (defn group-blocks-by-x-axis
   "Groups block positions by their position on the X axis"
   [blocks]
-  (group-by #(first %) (mapv :position blocks)))
+  (group-by #(first %) (map :position blocks)))
 
 (defn get-heights
   "Returns a collection of the maximum heights for each position
@@ -27,7 +27,7 @@
 (defn get-gap-penalty
   "1) we get the heights of each column in the grid, 2) we multiply each height with itself, 3) we sum all the squares"
   [blocks grid-size-x]
-  (double (apply + (mapv #(* % %) (get-heights blocks grid-size-x)))))
+  (double (apply + (map #(* % %) (get-heights blocks grid-size-x)))))
 
 (defn evaluate-view [view]
   (double
@@ -85,7 +85,7 @@
 
 
 (defn complement-move
-  "doing a drop before clearing rows does not actually changes the current piece which is removed in the next step"
+  "doing a drop before clearing rows does not actually change the current piece which is removed in the next step"
   [fns]
   (apply comp (concat [view/clear-full-rows view/drop-view] fns)))
 

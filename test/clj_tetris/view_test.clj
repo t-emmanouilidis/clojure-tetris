@@ -23,3 +23,18 @@
   (testing "Should be able to check if a row is full or not"
     (is (view/is-row-full? test-blocks 3 1.0))))
 
+(deftest test-full-row-v2
+  (testing "asd"
+    (is (view/is-row-full?
+          [(Block. [0 0] t-kind)
+           (Block. [1 0] t-kind)
+           (Block. [2 0] t-kind)
+           (Block. [3 0] t-kind)
+           (Block. [4 0] t-kind)
+           (Block. [5 0] t-kind)
+           (Block. [6 0] t-kind)
+           (Block. [7 0] t-kind)
+           (Block. [8 0] t-kind)
+           (Block. [9 0] t-kind)]
+          10 0))))
+
