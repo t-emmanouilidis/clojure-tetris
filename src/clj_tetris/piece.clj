@@ -25,9 +25,8 @@
     (Piece. new-position (:kind piece) (:local-points piece))))
 
 (defn rotate-piece [piece]
-  (let [theta standard-rotation-theta
-        cos-theta (Math/cos theta)
-        sin-theta (Math/sin theta)
+  (let [cos-theta (Math/cos standard-rotation-theta)
+        sin-theta (Math/sin standard-rotation-theta)
         current-position (:position piece)
         local-points (:local-points piece)
         piece-kind (:kind piece)]
