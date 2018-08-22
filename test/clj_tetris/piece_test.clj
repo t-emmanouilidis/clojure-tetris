@@ -8,3 +8,7 @@
     (is (= (piece/move-piece (piece/create-piece [5.0 5.0] kind/i-kind) [-1.0 0.0])
            (piece/create-piece [4.0 5.0] kind/i-kind)))))
 
+(deftest test-point-rotates-correctly
+  (testing "Should be able to rotate a point"
+    (is (= [1 -4] (piece/rotate-point [4.0 1.0])))))
+
