@@ -10,7 +10,7 @@
 (def t-kind-points [[-1.0 0.0] [0.0 0.0] [1.0 0.0] [0.0 1.0]])
 (def z-kind-points [[-1.0 0.5] [0.0 0.5] [0.0 -0.5] [1.0 -0.5]])
 
-(def standard-rotation-theta (/ (- Math/PI) 2.0))
+(def ccw-ninety-degree-rads (/ (- Math/PI) 2.0))
 
 (defrecord Piece [position kind local-points])
 
@@ -25,20 +25,16 @@
     (Piece. new-position (:kind piece) (:local-points piece))))
 
 (defn rotate-piece [piece]
-  (let [cos-theta (Math/cos standard-rotation-theta)
-        sin-theta (Math/sin standard-rotation-theta)
+  (let [cos-theta (Math/cos ccw-ninety-degree-rads)
+        sin-theta (Math/sin ccw-ninety-degree-rads)
         current-position (:position piece)
         local-points (:local-points piece)
         piece-kind (:kind piece)]
     (Piece. current-position piece-kind
             (mapv
-              (comp
-                (fn [[x y]]
-                  [(* (Math/round (* (double x) 2.0)) 0.5)
-                   (* (Math/round (* (double y) 2.0)) 0.5)])
-                (fn [[x y]]
-                  [(- (* cos-theta x) (* sin-theta y))
-                   (+ (* sin-theta x) (* cos-theta y))]))
+              (fn [[x y]]
+                [(- (Math/round (* cos-theta x)) (Math/round (* sin-theta y)))
+                 (+ (Math/round (* sin-theta x)) (Math/round (* cos-theta y)))])
               local-points))))
 
 (defn create-piece [position piece-kind]
