@@ -7,21 +7,18 @@
 
 (defn remove-piece-from-view
   [view piece]
-  (let [grid-size (:grid-size view)
-        current-block-positions (into #{} (map :position (block/blocks-from-piece piece)))
-        view-blocks (:all-blocks view)
+  (let [current-block-positions (into #{} (map :position (block/blocks-from-piece piece)))
         blocks-without-current (filter
                                  #(not (contains? current-block-positions (:position %)))
-                                 view-blocks)
-        cleared-line-count (:cleared-line-count view)]
+                                 (:all-blocks view))]
     (GameView.
       blocks-without-current
-      grid-size
+      (:grid-size view)
       nil
       (:next-piece view)
       (:next-piece-kinds view)
       false
-      cleared-line-count)))
+      (:cleared-line-count view))))
 
 (defn add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
@@ -118,18 +115,27 @@
               (map :position blocks)))
      grid-size-x))
 
-(defn- blocks-from-row [all-blocks row-num compare-func]
+(defn- blocks-relative-to-row
+  "Returns part of all the given blocks that are in a specific
+  position relative to the given row number e.g. above based on
+  the given compare function"
+  [all-blocks row-num compare-func]
   (filterv #(compare-func (last (:position %)) row-num) all-blocks))
 
-(defn blocks-above-row [all-blocks row-num]
-  (blocks-from-row all-blocks row-num >))
+(defn blocks-above-row
+  "Returns the part of all the blocks that are above the given row number"
+  [all-blocks row-num]
+  (blocks-relative-to-row all-blocks row-num >))
 
-(defn blocks-below-row [all-blocks row-num]
-  (blocks-from-row all-blocks row-num <))
+(defn blocks-below-row
+  "Returns the part of all the blocks that are below the given row number"
+  [all-blocks row-num]
+  (blocks-relative-to-row all-blocks row-num <))
 
-(defn move-upper-blocks-down [blocks row-num]
-  (let [upper-blocks (blocks-above-row blocks row-num)]
-    (block/move-blocks-down upper-blocks)))
+(defn move-upper-blocks-down
+  "Moves the blocks that are above the given row number one position down"
+  [blocks row-num]
+  (block/move-blocks-down (blocks-above-row blocks row-num)))
 
 (defn clear-full-rows [view]
   (let [grid-size (:grid-size view)
