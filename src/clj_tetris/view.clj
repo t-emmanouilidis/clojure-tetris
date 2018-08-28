@@ -7,7 +7,7 @@
 
 (defn remove-piece-from-view
   [view piece]
-  (let [current-block-positions (into #{} (map :position (block/blocks-from-piece piece)))
+  (let [current-block-positions (into #{} (map :position (piece/to-blocks piece)))
         blocks-without-current (filter
                                  #(not (contains? current-block-positions (:position %)))
                                  (:all-blocks view))]
@@ -22,7 +22,7 @@
 
 (defn add-piece-to-view [view moved-piece]
   (let [grid-size (:grid-size view)
-        blocks-with-moved-piece (into (:all-blocks view) (block/blocks-from-piece moved-piece))
+        blocks-with-moved-piece (into (:all-blocks view) (piece/to-blocks moved-piece))
         cleared-line-count (:cleared-line-count view)]
     (GameView.
       blocks-with-moved-piece
@@ -75,7 +75,7 @@
   (let [all-blocks (:all-blocks view)
         grid-size-x (first (:grid-size view))
         current-piece (:current-piece view)
-        current-piece-blocks (block/blocks-from-piece current-piece)
+        current-piece-blocks (piece/to-blocks current-piece)
         current-piece-block-positions (map :position current-piece-blocks)]
     (or (positions-out-of-bounds? current-piece-block-positions grid-size-x)
         (positions-overlap? (map :position all-blocks)))))
@@ -85,12 +85,12 @@
   (let [grid-size (:grid-size current-view)
         current-piece (:next-piece current-view)
         current-piece-kind (:kind current-piece)
-        current-piece-with-correct-pos (piece/create-piece drop-off-pos current-piece-kind)
+        current-piece-with-correct-pos (piece/create drop-off-pos current-piece-kind)
         next-piece-kinds (:next-piece-kinds current-view)
         next-piece-kind (first next-piece-kinds)
-        next-piece (piece/create-piece [2 1] next-piece-kind)
+        next-piece (piece/create [2 1] next-piece-kind)
         current-blocks (:all-blocks current-view)
-        current-piece-blocks (block/blocks-from-piece current-piece-with-correct-pos)
+        current-piece-blocks (piece/to-blocks current-piece-with-correct-pos)
         all-blocks (into current-blocks current-piece-blocks)
         all-block-positions (map :position all-blocks)
         next-next-piece-kinds (rest next-piece-kinds)
@@ -169,15 +169,15 @@
   (let [initial-piece-kinds (if (empty? piece-kinds)
                               (repeatedly (fn [] (piece-kind/get-next-random-piece-kind)))
                               piece-kinds)
-        current-piece (piece/create-piece drop-off-pos (first initial-piece-kinds))
-        current-piece-blocks (block/blocks-from-piece current-piece)
+        current-piece (piece/create drop-off-pos (first initial-piece-kinds))
+        current-piece-blocks (piece/to-blocks current-piece)
         next-piece-kinds (rest initial-piece-kinds)
         next-next-piece-kinds (rest next-piece-kinds)]
     (GameView.
       (into initial-blocks current-piece-blocks)
       grid-size
       current-piece
-      (piece/create-piece [2 1] (first next-piece-kinds))
+      (piece/create [2 1] (first next-piece-kinds))
       next-next-piece-kinds
       false
       0)))

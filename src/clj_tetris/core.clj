@@ -2,7 +2,8 @@
   (:require [clj-tetris.view :as view])
   (:require [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece]
-            [clj-tetris.block :as block]))
+            [clj-tetris.block :as block]
+            [clj-tetris.piece :as piece]))
 
 (def grid-size [10 20])
 (def mini-grid-size [4 4])
@@ -11,7 +12,7 @@
   (let [[size-x size-y] grid-size]
     [(/ size-x 2.0) size-y]))
 
-(defn piece-blocks [piece] (block/blocks-from-piece piece))
+(defn piece-blocks [piece] (piece/to-blocks piece))
 
 (defn current-piece-bounds-validator
   [{:keys [all-blocks current-piece]}]

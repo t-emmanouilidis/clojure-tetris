@@ -11,6 +11,7 @@
 (def z-kind (reify PieceKind))
 
 (defn get-next-random-piece-kind
+  "Returns a random piece kind"
   []
   (let [idx (rand-int 7)]
     (cond
@@ -23,6 +24,7 @@
       :else z-kind)))
 
 (defn orientation
+  "Returns the number of orientations that make sense for the given piece kind"
   [piece-kind]
   (cond
     (= piece-kind i-kind) 2

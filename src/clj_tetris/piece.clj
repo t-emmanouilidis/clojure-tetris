@@ -1,5 +1,7 @@
 (ns clj-tetris.piece
-  (:require [clj-tetris.piece-kind :refer :all]))
+  (:require [clj-tetris.piece-kind :refer :all]
+            [clj-tetris.block :refer :all])
+  (:import (clj_tetris.block Block)))
 
 ;; relative position deltas for each different block kind
 (def i-kind-points [[-1.5 0.0] [-0.5 0.0] [0.5 0.0] [1.5 0.0]])
@@ -39,7 +41,7 @@
     (Piece. current-position piece-kind
             (mapv rotate-point local-points))))
 
-(defn create-piece [position piece-kind]
+(defn create [position piece-kind]
   "Creates a new piece given its position as [x, y] and each kind"
   (cond
     (= i-kind piece-kind) (Piece. position piece-kind i-kind-points)
@@ -50,3 +52,15 @@
     (= t-kind piece-kind) (Piece. position piece-kind t-kind-points)
     (= z-kind piece-kind) (Piece. position piece-kind z-kind-points)
     :else (throw (IllegalStateException. (str "Tried to create a piece of kind" (type piece-kind))))))
+
+(defn to-blocks
+  "Returns the blocks that make up the given piece"
+  [piece]
+  (let [[pos-x pos-y] (:position piece)]
+    (mapv
+      (fn [[local-pos-x local-pos-y]]
+        (Block.
+          [(Math/floor (+ local-pos-x pos-x))
+           (Math/floor (+ local-pos-y pos-y))]
+          (:kind piece)))
+      (:local-points piece))))
