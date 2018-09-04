@@ -4,10 +4,12 @@
             [clj-tetris.piece-kind :refer :all]
             [clj-tetris.piece-kind :as piece-kind]))
 
+; set the minimum utility
 (def min-utility -1000.0)
 
 (defn get-max-height-from-positions
-  "Finds the maximum height from a collection of positions e.g. [[1.0 0.0][2.0 2.2]] for a specific X on axis"
+  "Finds the maximum height from a collection of
+  positions e.g. [[1.0 0.0][2.0 2.2]] for a specific X on axis"
   [positions]
   (let [heights (mapv #(inc (last %)) positions)]
     (if (empty? heights) 0 (apply max heights))))
@@ -55,8 +57,8 @@
   the current piece can be moved to left or to the right
   without bringing the view to an illegal state"
   [view]
-  {:left-limit  (allowed-number-of-moves view view/move-view-left)
-   :right-limit (allowed-number-of-moves view view/move-view-right)})
+  [(allowed-number-of-moves view view/move-view-left)
+   (allowed-number-of-moves view view/move-view-right)])
 
 
 (defn orientation-actions
@@ -76,15 +78,14 @@
 
 
 (defn action-seqs
-  "Returns a list of tuples that describe the possible legal
-  action sequences that can be performed"
+  "Returns the list of all possible combinations of
+  a legal move left/right action, orientation and drop actions
+  that can be performed in the view"
   [view]
   (let [current-piece (:current-piece view)
         current-piece-kind (:kind current-piece)
         orientation-actions (orientation-actions current-piece-kind)
-        side-limits (side-limits view)
-        left-limit (:left-limit side-limits)
-        right-limit (:right-limit side-limits)
+        [left-limit right-limit] (side-limits view)
         left-actions (translation-actions left-limit tcore/move-left view/move-view-left)
         right-actions (translation-actions right-limit tcore/move-right view/move-view-right)]
     (conj (for [orientation-action orientation-actions
@@ -97,7 +98,8 @@
 
 
 (defn complement-move
-  "doing a drop before clearing rows does not actually change the current piece which is removed in the next step"
+  "doing a drop before clearing rows does not actually change
+  the current piece which is removed in the next step"
   [fns]
   (apply comp (concat [view/clear-full-rows view/drop-view] fns)))
 

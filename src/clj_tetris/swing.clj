@@ -122,13 +122,14 @@
 
 (defn -main [& args]
 
-  ;Example key binding
+  ; Set the keyboard keys and the respective action key that each one triggers
   (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "SPACE") "tetrisSpaceAction")
   (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "DOWN") "tetrisDownAction")
   (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "UP") "tetrisUpAction")
   (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "LEFT") "tetrisLeftAction")
   (.put (.getInputMap main-panel) (KeyStroke/getKeyStroke "RIGHT") "tetrisRightAction")
 
+  ; Set the action keys and the respective action that each triggers
   (.put (.getActionMap main-panel) "tetrisSpaceAction" tetris-space-action)
   (.put (.getActionMap main-panel) "tetrisDownAction" tetris-down-action)
   (.put (.getActionMap main-panel) "tetrisUpAction" tetris-up-action)
