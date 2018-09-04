@@ -59,11 +59,11 @@
   (draw-blocks graphics offset-x size-of-grid current-piece-blocks))
 
 (defn draw-board
-  [graphics offset-x size-of-grid all-blocks current-piece-blocks]
+  [graphics x-position size-of-grid all-blocks current-piece-blocks]
   (.setColor graphics current-piece-color)
-  (draw-empty-grid graphics offset-x size-of-grid)
-  (draw-all-blocks graphics offset-x size-of-grid all-blocks)
-  (draw-current-piece graphics offset-x size-of-grid current-piece-blocks))
+  (draw-empty-grid graphics x-position size-of-grid)
+  (draw-all-blocks graphics x-position size-of-grid all-blocks)
+  (draw-current-piece graphics x-position size-of-grid current-piece-blocks))
 
 (defn onPaint
   [graphics]
@@ -135,9 +135,10 @@
   (.put (.getActionMap main-panel) "tetrisLeftAction" tetris-left-action)
   (.put (.getActionMap main-panel) "tetrisRightAction" tetris-right-action)
 
-  ;Setup panel properties
+  ;Setup main panel properties
   (.setContentPane main-frame main-panel)
 
+  ;Set size of window
   (.setSize main-panel 900 700)
   (.setFocusable main-panel true)
 

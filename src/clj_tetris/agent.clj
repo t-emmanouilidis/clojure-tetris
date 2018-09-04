@@ -25,7 +25,9 @@
     (mapv #(get-max-height-from-positions (get position-groups (double %))) (range grid-size-x))))
 
 (defn get-gap-penalty
-  "1) we get the heights of each column in the grid, 2) we multiply each height with itself, 3) we sum all the squares"
+  "1) we get the heights of each column in the grid,
+  2) we multiply each height with itself,
+  3) we sum all the squares"
   [blocks grid-size-x]
   (double (apply + (map #(* % %) (get-heights blocks grid-size-x)))))
 
@@ -37,6 +39,9 @@
 
 
 (defn allowed-number-of-moves
+  "Returns the number of times the given
+  function can be applied to the view until
+  the view is no longer in a legal state"
   ([view fn] (allowed-number-of-moves view fn 0))
   ([view fn n]
    (let [resulted-view (apply fn [view])]
@@ -46,12 +51,17 @@
 
 
 (defn side-limits
+  "Returns a dictionary of the number of how many times
+  the current piece can be moved to left or to the right
+  without bringing the view to an illegal state"
   [view]
   {:left-limit  (allowed-number-of-moves view view/move-view-left)
    :right-limit (allowed-number-of-moves view view/move-view-right)})
 
 
 (defn orientation-actions
+  "Returns a collection of the possible action sequences
+  regarding a piece's orientation"
   [current-piece-kind]
   (map
     #(repeat % {:core-move tcore/rotate-cw :view-move view/rotate-view-cw})
@@ -66,6 +76,8 @@
 
 
 (defn action-seqs
+  "Returns a list of tuples that describe the possible legal
+  action sequences that can be performed"
   [view]
   (let [current-piece (:current-piece view)
         current-piece-kind (:kind current-piece)
